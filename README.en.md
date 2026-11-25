@@ -8,8 +8,8 @@ Hangul Drop is a mobile-friendly falling-block puzzle game. Arrange Korean lette
 
 ## How to play
 
-- Place an initial consonant and a vowel in the correct relative positions to form a syllable and earn **100 bonus points**.
-- A completed two-jamo syllable stays for **two further block landings**. Add a valid final consonant below it during that time to earn **another 200 points**.
+- Place an initial consonant and a vowel in the correct relative positions to form a syllable and earn **100 bonus points**. A vowel may nest one grid cell into an empty notch of a consonant if their occupied cells do not overlap. The falling and NEXT jamo are labeled as consonant or vowel.
+- A completed two-jamo syllable **glows yellow** and remains available for **two further block landings**, with the remaining turns shown on screen. Add a final consonant below it during that time to earn **another 200 points**. If not extended, the pair is shown for 2.3 seconds before clearing (**not automatically 2.3 seconds after first formation**).
 - Completed syllables remain visible for approximately **2.3 seconds** before clearing. When supported by the device, the browser can pronounce them in Korean.
 - Clear a horizontal row by filling at least **13 of 16 cells**. Pieces may fall again and trigger combinations.
 - Use **NEXT Skip** up to three times per game to replace the upcoming jamo.
