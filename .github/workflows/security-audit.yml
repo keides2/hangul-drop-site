@@ -20,6 +20,8 @@ jobs:
         run: python3 tests/security_audit.py
       - name: Verify exact CSP hashes and strict directives
         run: python3 tools/csp_hashes.py --check
+      - name: Verify jamo notch geometry and invalid-placement rejection
+        run: node tests/geometry_notch_regression.mjs
 
   csp-browser-regression:
     # Playwright 1.57 supports Ubuntu 24.04; ubuntu-latest currently resolves to 26.04.
@@ -37,3 +39,5 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Verify gameplay and blocked attacks under CSP
         run: python tests/csp_browser_smoke.py
+      - name: Verify two-jamo recognition, batchim extension and timed clearing
+        run: python tests/pairing_browser_regression.py
