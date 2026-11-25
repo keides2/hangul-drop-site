@@ -2,7 +2,7 @@
 
 **Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
-**[▶ 게임 플레이](https://keides2.github.io/hangul-drop-site/)** | **[보안 점검 보고서(일본어)](SECURITY_AUDIT.md)**
+**[▶ 게임 플레이](https://keides2.github.io/hangul-drop-site/)** | **[외부 검사: CodeQL / ZAP (경고 13종, 일본어)](INDEPENDENT_SECURITY_CHECKS.md)** | [자체 보안 점검(일본어)](SECURITY_AUDIT.md)
 
 한글의 자음, 모음, 받침을 쌓아 한 글자를 만드는 스마트폰용 낙하형 퍼즐 게임입니다. 별도의 설치나 회원 가입 없이 브라우저에서 플레이할 수 있습니다.
 
@@ -26,7 +26,7 @@
 
 공개 소스코드 정적 검사와 로컬 브라우저 실행 검사를 실시했습니다. **검사한 범위**에서는 외부 통신 API, 알려진 인증정보 패턴, 외부 네트워크 요청이 발견되지 않았습니다. 그러나 **제3자 보안 인증이나 절대적인 안전 보장을 의미하지는 않습니다**. GitHub Pages의 접속 기록, 기기의 음성 합성 서비스, 서버의 HTTP 보안 헤더는 별도로 고려해야 합니다.
 
-측정 결과, 검사 범위, 한계 및 재실행 방법은 **[보안 점검 보고서(일본어)](SECURITY_AUDIT.md)**에 기록했습니다. 정적 검사는 GitHub Actions에서도 커밋마다 실행합니다.
+실제 공개 사이트를 대상으로 한 ZAP 검사에서는 **PASS 55 / WARN 13종 / FAIL 0**이 나왔고, CSP 및 클릭재킹 방지 헤더 부족 등이 지적되었습니다. 이는 **취약점이 전혀 없다는 보장이 아닙니다**. 자세한 내용과 원본 검사 링크는 **[외부 도구 검사 결과(일본어)](INDEPENDENT_SECURITY_CHECKS.md)**, 검사 범위와 재실행 방법은 [자체 점검 보고서](SECURITY_AUDIT.md)에 있습니다.
 
 ## 소스코드 및 운영
 
