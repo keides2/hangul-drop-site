@@ -1,7 +1,7 @@
 # ハングルドロップ公開サイト：セキュリティ自己監査結果
 
 **実施日：2026年11月25日** ／ 対象：[`keides2/hangul-drop-site`](https://github.com/keides2/hangul-drop-site)（公開用 `main`）  
-**現行ゲーム本体のGit blob SHA：** `3e938f0408bac927baa3ea5ecfb03955f6ba1ac4`（CSP導入前：`66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`）
+**現行ゲーム本体のGit blob SHA：** `8c520d9cf917f424d57ced4aee3e0aaeb0350ab6`（CSP初版：`3e938f0408bac927baa3ea5ecfb03955f6ba1ac4`）
 
 **総合判断：自己監査では対象パターンに重大な異常は検出されませんでした。CSP導入後のZAP再診断では12種類の警告が残っています（導入前は13種類）。** 「安全認証済み」「脆弱性ゼロ」ではありません。**[独立した検査エンジンの実行結果・警告詳細](INDEPENDENT_SECURITY_CHECKS.md)** を併せて確認してください。
 
@@ -50,7 +50,8 @@ Chromium + Playwrightを使い、公開版と同じ内容の `index.html` をロ
 4. **通信0件はテストした操作・環境での観測値。** すべての端末・音声エンジン・操作経路の結果ではありません。
 5. **GitHubのシークレットスキャン警告一覧やリポジトリ設定は未照会。** 管理画面での確認を推奨します。
 6. CSP適用後のZAP再検査は**FAIL 0 / WARN 12種類 / PASS 56**（導入前はFAIL 0 / WARN 13種類 / PASS 55）です（[原本リンク・内容の解説](INDEPENDENT_SECURITY_CHECKS.md)）。CodeQLの実行は成功し、HTML 1件の解析もログで確認しましたが、CodeQLの警告件数は未確認です。
-7. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
+7. **字母の空き部分への配置を認識する変更**ではCSPハッシュも再計算済みです。ブラウザーの組字・パッチム保持・消去試験と10種類の位置判定テストを追加しました。新しい公開HTMLのZAP再検査も **PASS 56 / WARN 12種類 / FAIL 0**（[実行原本](https://github.com/keides2/hangul-drop-site/actions/runs/45569372823)）です。
+8. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
 
 ## 再現手順・継続チェック
 
