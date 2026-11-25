@@ -1,6 +1,6 @@
 # 자모 DROP — 한글 낱자 퍼즐 게임
 
-**언어 / 言語: [日本語](README.md) | [한국어](README.ko.md)**
+**Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
 **[▶ 게임 플레이](https://keides2.github.io/hangul-drop-site/)** | **[보안 점검 보고서(일본어)](SECURITY_AUDIT.md)**
 
