@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#0a1222" />
+  <meta name="description" content="ハングルの子音と母音を積み上げる、スマホで遊べる落ち物パズル。" />
+  <title>자모 DROP · SYLLABLE CLEAR | ハングルドロップ</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080e1a;--surface:#111d2e;--line:#2a3d56;--text:#f2f8ff;--muted:#99abc4;--cyan:#64e5f0;--amber:#ffd17a}
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--bg);-webkit-tap-highlight-color:transparent}
+    body{margin:0;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 70% -10%,#233255 0%,transparent 47%),radial-gradient(ellipse at 0% 65%,#142a3a 0%,transparent 40%),var(--bg);font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;color:var(--text);overscroll-behavior-y:none}
+    button,select{font:inherit}
+    button{touch-action:manipulation;cursor:pointer}
+    .shell{width:min(100%,720px);margin:auto;padding:14px 15px max(20px,env(safe-area-inset-bottom));}
+    .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+    .brand{display:flex;align-items:center;gap:9px}
+    .brandmark{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#42d3ec,#7c71d9);color:#081320;font-weight:950;font-size:27px;box-shadow:0 7px 23px #41d0de27}
+    h1{font-size:clamp(19px,5vw,26px);line-height:1.06;letter-spacing:.02em;margin:0;font-weight:900}
+    .subtitle{color:var(--muted);font-size:11px;margin-top:5px;letter-spacing:.08em}
+    .header-btns{display:flex;gap:6px}
+    .small-button{height:39px;min-width:39px;padding:0 11px;border:1px solid #394b65;border-radius:11px;background:#152239;color:var(--text);font-size:16px;font-weight:700}
+    #sound.sound-muted{color:#7386a1}
+    .small-button:focus-visible,.ctrl:focus-visible,select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+    .small-button:active,.ctrl:active{filter:brightness(1.25)}
+    .stats{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:7px;margin-bottom:11px}
+    .stat{border:1px solid var(--line);border-radius:12px;background:#101b2dbd;padding:9px 10px;min-width:0}
+    .stat-label{font-size:10px;color:var(--muted);margin-bottom:2px;font-weight:700;letter-spacing:.08em}
+    .stat-value{font-size:clamp(16px,4.5vw,24px);font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .stat:first-child .stat-value{color:var(--cyan)}
+    .game-area{display:grid;grid-template-columns:minmax(0,1fr) 127px;gap:11px;align-items:start;max-width:550px;margin:auto}
+    .board-wrap{position:relative;width:100%;margin:0 auto;border:2px solid #3a5874;border-radius:13px;overflow:hidden;background:#091426;box-shadow:0 0 0 3px #0c1725,0 15px 45px #01050d90}
+    #board{display:block;width:100%;height:auto;aspect-ratio:16/23;touch-action:none;user-select:none}
+    .veil{position:absolute;inset:0;display:grid;place-items:center;background:#060e1be6;text-align:center;padding:10px;z-index:3;backdrop-filter:blur(4px)}
+    .veil.hidden{display:none}
+    .overlay-title{font-size:clamp(20px,5vw,30px);font-weight:950;letter-spacing:.03em;margin:0 0 7px}
+    .overlay-note{font-size:12px;color:#bbccdf;line-height:1.65;margin:0 0 14px;white-space:pre-line}
+    .primary{background:linear-gradient(120deg,#60e1ee,#8db8ff);border:0;color:#071527;border-radius:12px;font-weight:900;min-height:47px;padding:0 20px;box-shadow:0 8px 22px #5cdef02b}
+    .side{display:grid;gap:10px;min-width:0}
+    .panel{border:1px solid var(--line);border-radius:12px;background:#111d2edb;padding:11px 9px}
+    .panel-title{font-size:11px;color:#98aac1;letter-spacing:.09em;font-weight:800;margin:0 0 7px}
+    .next-box{min-height:121px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+    .skip-next{width:100%;min-height:36px;border:1px solid #49a7c5;border-radius:9px;background:#17364b;color:#b8f4ff;font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation}
+    .skip-next:active:not(:disabled){background:#285773}
+    .skip-next:disabled{opacity:.4;cursor:not-allowed}
+    .skip-next .skip-count{font-size:10px;color:#d5e8f4;white-space:nowrap}
+
+    #next{max-width:110px;width:100%;height:auto;aspect-ratio:1.15}
+    #next-label{font-size:23px;font-weight:850;color:#eaf7ff}
+    .rule-large{font-size:29px;font-weight:900;color:var(--amber);line-height:1.15}
+    .rule-small{font-size:11px;color:var(--muted);line-height:1.6;margin-top:5px}
+    .rule-select{width:100%;margin-top:10px;color:#ecf4fc;background:#15243b;border:1px solid #364e69;border-radius:8px;padding:7px 3px;font-size:11px}
+    .help{font-size:11px;line-height:1.85;color:#aabbd0}
+    .help b{color:#e2effe}
+    .controls{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:550px;margin:12px auto 0}
+    .ctrl{height:64px;border:1px solid #405976;background:linear-gradient(180deg,#1f324c,#14253b);color:#f4faff;border-radius:14px;font-size:26px;font-weight:850;touch-action:none;box-shadow:0 4px 0 #091424;user-select:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px}
+    .ctrl .desc{font-size:10px;color:#b4c8df;font-weight:700;line-height:1}
+    .ctrl:active,.ctrl.pressed{transform:translateY(3px);box-shadow:0 1px 0 #091424;background:#2a4661}
+    .ctrl.drop{background:linear-gradient(180deg,#37b9ce,#23839d);color:#fff;border-color:#54d3e5}
+    .ctrl.drop .desc{color:#d9f9fc}
+    .foot{text-align:center;color:#7f95b0;font-size:11px;line-height:1.6;margin:14px auto 0;max-width:600px}
+    .toast{position:fixed;z-index:9;left:50%;bottom:115px;transform:translate(-50%,18px);background:#233f54;border:1px solid #5bc7da;color:#eaffff;border-radius:999px;padding:9px 17px;font-size:13px;font-weight:800;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:380px){.shell{padding-left:9px;padding-right:9px}.game-area{grid-template-columns:minmax(0,1fr) 102px;gap:7px}.panel{padding:8px 7px}.stat{padding:8px 7px}.controls{gap:6px}.ctrl{height:57px;font-size:23px}.next-box{min-height:96px}.rule-large{font-size:24px}}
+    @media(min-width:600px){.shell{padding-top:25px}.game-area{grid-template-columns:minmax(0,1fr) 150px}.ctrl{height:69px}}
+    @media(max-height:490px) and (orientation:landscape){
+      .shell{max-width:900px;height:100dvh;padding:6px 12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,32%);grid-template-rows:36px minmax(0,1fr);gap:7px 12px;overflow:hidden}
+      .head{grid-column:1/-1;grid-row:1;margin:0}
+      .brandmark{width:35px;height:35px;font-size:22px}.brand h1{font-size:19px}.subtitle{display:none}.small-button{height:34px;min-width:35px}
+      .stats{grid-column:2;grid-row:2;align-self:start;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,40px);gap:5px;margin:0}
+      .stat{padding:3px 8px;border-radius:7px}.stat-label{font-size:9px;margin:0}.stat-value{font-size:16px}
+      .game-area{grid-column:1;grid-row:2;max-width:410px;width:100%;min-height:0;grid-template-columns:minmax(0,1fr) 116px;gap:7px;justify-self:center}
+      .board-wrap{width:min(100%,calc((100dvh - 59px)*16/23));margin:0 auto;border-radius:8px}
+      .side{gap:6px;align-content:start}.side .panel{padding:6px 7px}.side .help{display:none}.panel-title{font-size:9px;margin-bottom:3px}
+      .next-box{min-height:73px;gap:0}#next{max-width:72px;height:54px}#next-label{font-size:16px}
+      .skip-next{min-height:28px;padding:3px 2px;font-size:10px}
+
+      .rule-large{font-size:21px}.rule-small{font-size:10px;line-height:1.35;margin-top:2px}.rule-select{padding:4px 1px;margin-top:4px;font-size:10px}
+      .side label[for=rule]{margin-top:4px!important;font-size:9px!important}
+      .controls{grid-column:2;grid-row:2;align-self:start;max-width:none;width:100%;margin:91px 0 0;gap:4px}
+      .ctrl{height:48px;font-size:20px;border-radius:9px}.ctrl .desc{font-size:9px}.foot{display:none}
+    }
+    .word-pop{position:absolute;left:50%;top:35%;transform:translate(-50%,-10%) scale(.75);text-align:center;pointer-events:none;z-index:2;opacity:0;width:95%;filter:drop-shadow(0 4px 14px #000b)}
+    .word-pop strong{display:block;font-size:clamp(40px,11vw,70px);line-height:1.15;color:#ffe28c;-webkit-text-stroke:.7px #4d345b;text-shadow:0 0 20px #fbc965b9}
+    .word-pop span{display:block;color:#fff4de;font-weight:850;font-size:16px;margin-top:5px}
+    .word-pop .bonus{color:#72f1e4;font-size:21px}
+    .word-pop.show{animation:wordBurst 1.6s ease-out both}
+    @keyframes wordBurst{0%{opacity:0;transform:translate(-50%,-5%) scale(.55)}12%{opacity:1;transform:translate(-50%,-25%) scale(1.10)}35%{transform:translate(-50%,-25%) scale(1)}76%{opacity:1}100%{opacity:0;transform:translate(-50%,-75%) scale(1)}}
+    @media(max-width:599px){.header-btns{gap:4px}.header-btns .small-button{height:36px;min-width:32px;padding:0 6px;font-size:16px}.brandmark{width:37px;height:37px;font-size:24px}.brand{gap:6px}.brand h1{font-size:clamp(18px,4.8vw,23px)}.subtitle{font-size:10px;letter-spacing:.01em}}
+    .word-hint{display:block;color:#9fbed5;font-size:11px;line-height:1.4;min-height:15px;text-align:center;margin-top:-4px}
+    @media(max-width:599px){
+      .shell{max-width:440px}
+      .game-area{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:370px}
+      .board-wrap{width:min(100%,calc((100dvh - 220px)*16/23))}
+      .side{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .side .panel{padding:6px 9px}.side .help{display:none}
+      .next-box{min-height:45px;flex-direction:row;gap:5px}#next{width:57px;height:48px;max-width:57px}
+      .skip-next{min-height:31px;font-size:11px;margin-top:3px}
+
+      #next-label{font-size:19px}.rule-large{font-size:19px}
+      .rule-small{font-size:10px;line-height:1.35;margin-top:2px}
+      .rule-select{font-size:10px;padding:4px 3px;margin-top:4px}
+      .side label[for=rule]{display:none!important}
+      .controls{margin-top:9px}.ctrl{height:54px}
+    }
+    @media(max-width:380px){.side .panel{padding:5px 6px}.stats{gap:5px;margin-bottom:8px}.stat{padding:6px 7px}.head{margin-bottom:7px}}
+    @media(max-height:490px) and (orientation:landscape){.game-area{display:grid;grid-template-columns:minmax(0,1fr) 116px;max-width:410px;gap:7px}.board-wrap{width:min(100%,calc((100dvh - 59px)*16/23))}.side{display:grid;grid-template-columns:1fr;width:auto}.word-hint{display:none}.ctrl{height:48px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="head">
+    <div class="brand"><div class="brandmark" aria-hidden="true">ㅎ</div><div><h1>자모 <span style="color:#6fe0ee">DROP</span></h1><div class="subtitle">PHASE 1 · ハングルの配置に挑戦</div></div></div>
+    <div class="header-btns"><button type="button" class="small-button sound-muted" id="sound" title="効果音 OFF（押すとON）" aria-label="効果音を鳴らす" aria-pressed="false">♪</button><button type="button" class="small-button" id="speech" title="韓国語の発音 ON（押すとOFF）" aria-label="韓国語の発音 ON（押すとOFF）" aria-pressed="true">🔊</button><button type="button" class="small-button" id="pause" title="一時停止" aria-label="一時停止">Ⅱ</button><button type="button" class="small-button" id="restart" title="最初から" aria-label="最初から">↻</button></div>
+  </header>
+  <section class="stats" aria-label="スコア">
+    <div class="stat"><div class="stat-label">SCORE</div><div class="stat-value" id="score">0</div></div>
+    <div class="stat"><div class="stat-label">BEST</div><div class="stat-value" id="best">0</div></div>
+    <div class="stat"><div class="stat-label">LINES</div><div class="stat-value" id="lines">0</div></div>
+    <div class="stat"><div class="stat-label">LEVEL</div><div class="stat-value" id="level">1</div></div>
+  </section>
+  <div class="game-area">
+    <div class="board-wrap">
+      <canvas id="board" width="512" height="736" role="img" aria-label="ハングルのブロックが落下するゲーム盤。タップで回転、左右スワイプで移動、下スワイプで一気に落とします。"></canvas>
+      <div class="word-pop" id="word-pop" aria-live="polite"><strong id="word-title"></strong><span id="word-gloss"></span><span class="bonus" id="word-bonus"></span></div>
+      <div class="veil" id="veil"><div><h2 class="overlay-title" id="veil-title">한글で遊ぼう！</h2><p class="overlay-note" id="veil-note">母音は子音の右または下にそろえて+100点
+パッチムは文字の下に配置すると+200点
+2回の着地後に消去 · 横一列消去も有効！</p><button type="button" class="primary" id="veil-button">ゲーム開始</button></div></div>
+    </div>
+    <aside class="side">
+      <section class="panel"><div class="panel-title">NEXT · 次の文字</div><div class="next-box"><canvas id="next" width="160" height="138" aria-label="次に落ちる文字"></canvas><div id="next-label">ㄱ</div></div><button type="button" class="skip-next" id="skip-next" aria-label="次の字母候補をスキップする">⏭ スキップ <span class="skip-count" id="skip-count">残り3回</span></button></section>
+      <section class="panel"><div class="panel-title">CLEAR RULE</div><div class="rule-large" id="rule-number">13 / 16</div><div class="rule-small">横１列がこれだけ埋まると消える</div><label for="rule" style="font-size:10px;color:#99abc4;display:block;margin-top:8px">難易度</label><select id="rule" class="rule-select" aria-label="消去条件"><option value="11">やさしい · 約70%</option><option value="13" selected>ふつう · 約80%</option><option value="16">難しい · 100%</option></select></section>
+      <section class="panel help"><div class="panel-title">操作方法</div><b>↔</b> 左右に移動<br><b>⟳</b> 文字を回転<br><b>↓</b> 早く落とす<br><b>⤓</b> 一気に落とす<br><b>⏭</b> NEXT候補を変更（3回）<br>盤面を<b>タップ</b>で回転</section>
+    </aside>
+  </div>
+  <p class="word-hint" id="word-hint" aria-live="polite">母音は子音の右/下、パッチムは完成文字の下に配置！</p>
+  <p class="word-hint" style="margin-top:4px"><button type="button" id="speech-test" style="font:inherit;color:#baf5fd;background:transparent;border:1px solid #45617c;border-radius:8px;padding:3px 10px" aria-label="韓国語の発音を試す">▶ 発音テスト「나」</button></p>
+  <section class="controls" aria-label="ゲーム操作">
+    <button type="button" class="ctrl" id="left" aria-label="左に移動">←<span class="desc">左へ</span></button>
+    <button type="button" class="ctrl" id="right" aria-label="右に移動">→<span class="desc">右へ</span></button>
+    <button type="button" class="ctrl" id="rotate" aria-label="回転">⟳<span class="desc">回転</span></button>
+    <button type="button" class="ctrl" id="down" aria-label="下に移動">↓<span class="desc">下へ</span></button>
+    <button type="button" class="ctrl drop" id="drop" aria-label="一気に落とす">⤓<span class="desc">落とす</span></button>
+  </section>
+  <p class="foot">スマホではボタン操作のほか、盤面を左右にスワイプして移動、下にスワイプして落下できます。<br>キーボードは ← → ↓ / ↑（回転） / Space（落下） / S（候補スキップ） / P（一時停止）。</p>
+</main>
+<div class="toast" id="toast" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const C=16, R=23, U=32;
+  const el=id=>document.getElementById(id);
+  const canvas=el('board'), ctx=canvas.getContext('2d');
+  const preview=el('next'),px=preview.getContext('2d');
+  // Collision masks are small block patterns. The bright Hangul glyph over each
+  // intact pattern is visual only; collisions remain deterministic grid cells.
+  const SHAPES=[
+    {j:'ㄱ',m:['111','001','001'],c:'#69d6f5'},
+    {j:'ㄴ',m:['100','100','111'],c:'#ffa86d'},
+    {j:'ㄷ',m:['111','100','111'],c:'#ae96fa'},
+    {j:'ㅁ',m:['111','101','111'],c:'#6be0a7'},
+    {j:'ㅅ',m:['010','111'],c:'#ff83a7'},
+    {j:'ㅇ',m:['111','101','111'],c:'#ffcf6e'},
+    {j:'ㅏ',m:['010','011','010'],c:'#f28de0'},
+    {j:'ㅓ',m:['010','110','010'],c:'#8cc7fe'},
+    {j:'ㅗ',m:['010','111'],c:'#9cec9c'},
+    {j:'ㅜ',m:['111','010'],c:'#ffa8b8'},
+    {j:'ㅡ',m:['111'],c:'#ffdf84'},
+    {j:'ㅣ',m:['1','1','1'],c:'#aaa5ff'},
+    {j:'ㅂ',m:['101','111','111'],c:'#61dbdb'},
+    {j:'ㅋ',m:['111','111','001'],c:'#d0a0ff'},
+    {j:'ㅎ',m:['111','111','111'],c:'#ffb88d'},
+    {j:'ㄹ',m:['111','111','111'],c:'#7df4bc'},
+    {j:'ㅈ',m:['111','010','111'],c:'#fac390'}
+  ];
+  const mCells=m=>m.flatMap((row,y)=>[...row].flatMap((v,x)=>v==='1'?[{x,y}]:[]));
+  const shapes=SHAPES.map(s=>{
+    const raw=mCells(s.m),mx=Math.min(...raw.map(c=>c.x)),my=Math.min(...raw.map(c=>c.y));
+    const cells=raw.map(c=>({x:c.x-mx,y:c.y-my}));
+    return {...s,w:Math.max(...cells.map(c=>c.x))+1,h:Math.max(...cells.map(c=>c.y))+1,cells};
+  });
+  const empty=()=>Array.from({length:R},()=>Array(C).fill(null));
+  let board=empty(),active=null,next=null,state='ready',score=0,best=0,lines=0,level=1,combo=0;
+  let lastTime=0,fallAccumulator=0,clearTimer=null,gravityTimer=null,threshold=13,soundOn=false,audio=null,bag=[],toastTimer=null,popTimer=null;
+  let seq=0,lockedMeta=new Map(),clearRows=[],clearIds=new Set(),particles=[],syllableCount=0;
+  const SYLLABLE_POINTS=100, BATCHIM_BONUS=200;
+  // Retain a completed onset+vowel for two additional landed pieces. This is
+  // turn-based rather than a wall-clock countdown so the player can aim.
+  const HOLD_TURNS=2;
+  const SKIP_LIMIT=3;
+  let skipsLeft=SKIP_LIMIT;
+  // Short visual clear delay; two-letter hold is counted in landed pieces.
+  // Keep a completed syllable visible before its entire glyph group clears.
+  // Line-only clears stay snappy; the 2-lock batchim opportunity is unchanged.
+  const CLEAR_ANIMATION_MS=220, COMPLETE_SYLLABLE_VIEW_MS=2300, EXPIRED_PAIR_VIEW_MS=2300,
+    GRAVITY_STEP_MS=32, GRAVITY_START_MS=45;
+  let lockCount=0;
+  const pendingPairs=new Map(), creditedJamoIds=new Set();
+  const FINALS=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const SIMPLE_FINALS=new Set(['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅋ','ㅎ']);
+  let speechOn=true,speechErrorShown=false,hintTimer=null;
+  const speechSupported=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+  const synth=speechSupported?window.speechSynthesis:null;
+  const ONSETS=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const VOWELS=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+  const VERTICAL=new Set(['ㅏ','ㅓ','ㅣ']);
+  const HORIZONTAL=new Set(['ㅗ','ㅜ','ㅡ']);
+  try{best=Number(localStorage.getItem('jamo-drop-syllableclear-best'))||0;}catch(_){ }
+  el('best').textContent=best.toLocaleString('ja-JP');
+
+  function pick(){
+    if(!bag.length){bag=shapes.map((_,i)=>i);for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];}}
+    return shapes[bag.pop()];
+  }
+  function updateSkipButton(){
+    el('skip-count').textContent=`残り${skipsLeft}回`;
+    el('skip-next').disabled=skipsLeft===0;
+    el('skip-next').setAttribute('aria-label',`次の字母候補をスキップする（残り${skipsLeft}回）`);
+  }
+  function skipNext(){
+    // Skip the preview only: the falling piece, score, and held syllable turns do not change.
+    if(state!=='playing'||!next||skipsLeft<=0)return;
+    const previous=next.j;
+    let replacement=pick();
+    let attempts=0;
+    while(replacement.j===previous&&++attempts<shapes.length)replacement=pick();
+    if(replacement.j===previous)return;
+    next=replacement;
+    skipsLeft--;
+    drawPreview();
+    updateSkipButton();
+    showToast(`NEXT: ${previous} → ${next.j}（残り${skipsLeft}回）`);
+  }
+  function piece(shape){return {x:Math.floor((C-shape.w)/2),y:0,cells:shape.cells.map(c=>({...c})),w:shape.w,h:shape.h,baseW:shape.w,baseH:shape.h,rot:0,color:shape.c,j:shape.j};}
+  function valid(p,ox=0,oy=0,cells=p.cells){return cells.every(({x,y})=>{const bx=p.x+x+ox,by=p.y+y+oy;return bx>=0&&bx<C&&by<R&&(by<0||board[by][bx]===null);});}
+  function spawn(){active=piece(next||pick());next=pick();drawPreview();if(!valid(active)){state='over';showVeil('ゲームオーバー',`スコア ${score.toLocaleString('ja-JP')} 点\nもう一度チャレンジ！`,'もう一度');play('over');}}
+  function reset(){
+    clearTimeout(clearTimer);clearTimeout(gravityTimer);gravityTimer=null;clearTimeout(popTimer);clearTimeout(hintTimer);if(synth)try{synth.cancel();}catch(_){};clearRows=[];clearIds.clear();board=empty();lockedMeta.clear();seq=0;particles=[];syllableCount=0;lockCount=0;pendingPairs.clear();creditedJamoIds.clear();active=null;next=pick();score=0;lines=0;level=1;combo=0;fallAccumulator=0;lastTime=0;state='playing';
+    skipsLeft=SKIP_LIMIT;updateSkipButton();
+    el('word-pop').classList.remove('show');el('word-hint').textContent='母音は子音の右または下。パッチムは完成文字の下へ！';
+    updateStats();spawn();hideVeil();draw();
+  }
+  function showVeil(title,note,button){el('veil-title').textContent=title;el('veil-note').textContent=note;el('veil-button').textContent=button;el('veil').classList.remove('hidden');}
+  function hideVeil(){el('veil').classList.add('hidden');}
+  function togglePause(){if(state==='playing'){state='paused';showVeil('一時停止','再開すると続きから遊べます。','再開');}else if(state==='paused'){state='playing';fallAccumulator=0;lastTime=0;hideVeil();}draw();}
+  function updateStats(){
+    el('score').textContent=score.toLocaleString('ja-JP');el('lines').textContent=lines;el('level').textContent=level;
+    if(score>best){best=score;el('best').textContent=best.toLocaleString('ja-JP');try{localStorage.setItem('jamo-drop-syllableclear-best',String(best));}catch(_){}}
+  }
+  function move(dx,dy){if(state!=='playing'||!active)return false;if(valid(active,dx,dy)){active.x+=dx;active.y+=dy;draw();return true;}if(dy>0&&dx===0)lock();return false;}
+  function rotate(){
+    if(state!=='playing'||!active)return;
+    const nc=active.cells.map(({x,y})=>({x:active.h-1-y,y:x}));
+    const nw=active.h,nh=active.w,oldX=active.x;
+    for(const kick of [0,-1,1,-2,2]){
+      active.x=oldX+kick;
+      if(valid(active,0,0,nc)){active.cells=nc;active.w=nw;active.h=nh;active.rot=(active.rot+1)%4;play('rotate');draw();return;}
+    }
+    active.x=oldX;
+  }
+  function hardDrop(){if(state!=='playing'||!active)return;let steps=0;while(valid(active,0,1)){active.y++;steps++;}score+=steps*2;play('drop');lock();}
+  function placeActive(){
+    const id=++seq;
+    if(active.cells.some(({x,y})=>active.y+y<0)){state='over';showVeil('ゲームオーバー',`スコア ${score.toLocaleString('ja-JP')} 点`,'もう一度');return false;}
+    lockedMeta.set(id,{j:active.j,color:active.color,rot:active.rot,baseW:active.baseW,baseH:active.baseH,cells:active.cells.map(c=>({...c}))});
+    for(const {x,y} of active.cells)board[active.y+y][active.x+x]={id,j:active.j,color:active.color};
+    active=null;return true;
+  }
+  function pruneMeta(){const ids=new Set(board.flat().filter(Boolean).map(cell=>cell.id));for(const id of lockedMeta.keys())if(!ids.has(id))lockedMeta.delete(id);}
+  function intactGroups(){
+    const groups=new Map();
+    for(let y=0;y<R;y++)for(let x=0;x<C;x++){const c=board[y][x];if(!c)continue;if(!groups.has(c.id))groups.set(c.id,[]);groups.get(c.id).push({x,y});}
+    const intact=[],broken=[];
+    for(const [id,cells] of groups){
+      const m=lockedMeta.get(id);if(!m)continue;
+      const minX=Math.min(...cells.map(c=>c.x)), minY=Math.min(...cells.map(c=>c.y));
+      const maxX=Math.max(...cells.map(c=>c.x)), maxY=Math.max(...cells.map(c=>c.y));
+      const actual=new Set(cells.map(c=>`${c.x-minX},${c.y-minY}`));
+      const isIntact=cells.length===m.cells.length&&m.cells.every(c=>actual.has(`${c.x},${c.y}`));
+      const o={id,j:m.j,color:m.color,rot:m.rot,baseW:m.baseW,baseH:m.baseH,
+        x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1,cells,
+        right:maxX+1,bottom:maxY+1,cx:(minX+maxX+1)/2,cy:(minY+maxY+1)/2};
+      (isIntact?intact:broken).push(o);
+    }
+    return {intact,broken};
+  }
+  // Unicode Hangul syllable composition: L × V × T (19 × 21 × 28).
+  function compose(c,v,f=''){
+    const ci=ONSETS.indexOf(c),vi=VOWELS.indexOf(v),fi=FINALS.indexOf(f);
+    return ci<0||vi<0||fi<0?'':String.fromCharCode(0xAC00+(ci*21+vi)*28+fi);
+  }
+  function pairKey(ids){return [...ids].sort((a,b)=>a-b).join(':');}
+  function makeSyllables(groups){
+    const candidates=[];
+    for(const c of groups){
+      if(c.rot!==0||!ONSETS.includes(c.j))continue;
+      for(const v of groups){
+        if(v.id===c.id||v.rot!==0)continue;
+        // A Korean syllable is spatially organized, not just a cluster.
+        // Vertical vowels belong to the RIGHT, horizontal vowels BELOW.
+        // Permit at most one empty grid cell and one-cell alignment error.
+        let gap=Infinity,offset=Infinity;
+        if(VERTICAL.has(v.j)){
+          gap=v.x-c.right;offset=Math.abs(v.cy-c.cy);
+          if(gap<0||gap>1||offset>1.0)continue;
+        }else if(HORIZONTAL.has(v.j)){
+          gap=v.y-c.bottom;offset=Math.abs(v.cx-c.cx);
+          if(gap<0||gap>1||offset>1.0)continue;
+        }else continue;
+        const ch=compose(c.j,v.j);if(!ch)continue;
+        candidates.push({ch,ids:[c.id,v.id],x:Math.min(c.x,v.x),y:Math.min(c.y,v.y),
+          right:Math.max(c.right,v.right),bottom:Math.max(c.bottom,v.bottom),
+          cx:(c.cx+v.cx)/2,cy:(c.cy+v.cy)/2,distance:Math.max(0,gap)*2+offset,
+          consonant:c,vowel:v,key:pairKey([c.id,v.id])});
+      }
+    }
+    return candidates.sort((a,b)=>a.distance-b.distance);
+  }
+  function makeBatchimCandidates(groups,pairs){
+    const triples=[];
+    for(const pair of pairs){
+      for(const f of groups){
+        if(pair.ids.includes(f.id)||f.rot!==0||!SIMPLE_FINALS.has(f.j))continue;
+        // In actual Hangul the final consonant (batchim) is BELOW the
+        // onset+vowel. The former 'above is also OK' gameplay shortcut
+        // incorrectly taught its position and is intentionally removed.
+        const gapBelow=f.y-pair.bottom;
+        const centered=Math.abs(f.cx-pair.cx);
+        if(gapBelow<0||gapBelow>1||centered>1.5)continue;
+        const ch=compose(pair.consonant.j,pair.vowel.j,f.j);
+        if(!ch)continue;
+        const penalty=gapBelow*2+centered;
+        triples.push({ch,kind:'batchim',ids:[...pair.ids,f.id],key:pair.key,
+          cx:(pair.cx*2+f.cx)/3,cy:(pair.cy*2+f.cy)/3,
+          distance:pair.distance+penalty+Math.abs(f.cx-pair.cx)});
+      }
+    }
+    return triples.sort((a,b)=>a.distance-b.distance);
+  }
+  // Prefer a complete 3-jamo syllable over a 2-jamo match. No piece can
+  // contribute to two matches during one resolution pass.
+  function matchSyllables(groups){
+    const pairs=makeSyllables(groups),triples=makeBatchimCandidates(groups,pairs);
+    const used=new Set(),completed=[],incomplete=[];
+    for(const t of triples){
+      if(t.ids.some(id=>used.has(id)))continue;
+      completed.push(t);t.ids.forEach(id=>used.add(id));
+    }
+    for(const p of pairs){
+      if(p.ids.some(id=>used.has(id)))continue;
+      incomplete.push(p);p.ids.forEach(id=>used.add(id));
+    }
+    return {completed,incomplete};
+  }
+  function announceSyllable(events,bonus){
+    const first=events[0];
+    el('word-title').textContent=first.ch;
+    el('word-gloss').textContent=first.kind==='batchim'
+      ?'パッチム付き3字母完成！':`2字母完成！ あと${HOLD_TURNS}手で消去`;
+    el('word-bonus').textContent=`SYLLABLE BONUS +${bonus.toLocaleString('ja-JP')}`;
+    const pop=el('word-pop');pop.classList.remove('show');void pop.offsetWidth;pop.classList.add('show');
+    el('word-hint').textContent=`音節 ${syllableCount}文字 · ${events.map(s=>s.ch).join('・')} +${bonus.toLocaleString('ja-JP')}点`;
+    clearTimeout(hintTimer);hintTimer=setTimeout(updateSyllableHint,3800);
+    clearTimeout(popTimer);popTimer=setTimeout(()=>pop.classList.remove('show'),3400);
+    for(let i=0;i<20;i++){
+      const angle=2*Math.PI*i/20,velocity=1.5+Math.random()*2;
+      particles.push({x:first.cx*U,y:first.cy*U,vx:Math.cos(angle)*velocity,vy:Math.sin(angle)*velocity-.8,life:0,max:32,color:i%2?'#b2f9ff':'#ffe69e'});
+    }
+  }
+  function updateSyllableHint(){
+    if(pendingPairs.size){
+      const queue=[...pendingPairs.values()].sort((a,b)=>a.createdTurn-b.createdTurn);
+      const text=queue.slice(0,3).map(p=>`${p.ch}（あと${Math.max(0,HOLD_TURNS-(lockCount-p.createdTurn))}手）`).join('・');
+      el('word-hint').textContent=`パッチム待ち：${text} · 終声は文字の下側に配置！`;
+    }else{
+      el('word-hint').textContent=`完成 ${syllableCount}文字 · 母音は子音の右/下、パッチムは下に配置`;
+    }
+  }
+  function speakWords(words,force=false){
+    if(!speechSupported){if(force)showToast('このブラウザーでは発音を利用できません');return;}
+    if(!speechOn&&!force)return;
+    try{
+      synth.cancel();
+      // The native speech engine is supplied by the device/browser. Prefer a
+      // genuine Korean voice; lang=ko-KR is the fallback if getVoices is empty.
+      const voices=synth.getVoices();
+      const ko=voices.find(v=>v.lang.toLowerCase()==='ko-kr')||voices.find(v=>v.lang.toLowerCase().startsWith('ko'));
+      for(const word of words){
+        const utter=new SpeechSynthesisUtterance(word);
+        utter.lang='ko-KR';utter.rate=.85;utter.pitch=1;
+        if(ko)utter.voice=ko;
+        utter.onerror=()=>{if(!speechErrorShown){speechErrorShown=true;showToast('韓国語音声を再生できません。端末の音声設定をご確認ください');}};
+        synth.speak(utter);
+      }
+    }catch(_){if(!speechErrorShown){speechErrorShown=true;showToast('音声の再生に失敗しました');}}
+  }
+  // Clear whole piece IDs. Never leave fragments of a multi-cell jamo.
+  function removePieces(ids){
+    if(!ids.size)return;
+    for(let y=0;y<R;y++)for(let x=0;x<C;x++){
+      if(board[y][x]&&ids.has(board[y][x].id))board[y][x]=null;
+    }
+  }
+  // A row clear crossing even one cell of a glyph destroys the entire glyph.
+  // Otherwise the remaining mask cells become visual debris / broken triangles.
+  function rowsTouchedPieces(rows){
+    const result=new Set();
+    for(const y of rows)for(const cell of board[y])if(cell)result.add(cell.id);
+    return result;
+  }
+  function discardBrokenPieces(){
+    const broken=intactGroups().broken;
+    if(broken.length)removePieces(new Set(broken.map(p=>p.id)));
+  }
+  // Move complete locked jamo, not individual grid cells. A single-cell
+  // gravity implementation would tear Hangul strokes apart after a clear.
+  function gravityStep(){
+    const pieces=intactGroups().intact.sort((a,b)=>b.bottom-a.bottom||a.x-b.x);
+    let moved=false;
+    for(const p of pieces){
+      const canFall=p.cells.every(({x,y})=>y+1<R&&(!board[y+1][x]||board[y+1][x].id===p.id));
+      if(!canFall)continue;
+      // Removing all old cells before writing the new ones preserves the glyph
+      // when its own cells overlap their destination (vertical strokes).
+      for(const {x,y} of p.cells)board[y][x]=null;
+      for(const {x,y} of p.cells)board[y+1][x]={id:p.id,j:p.j,color:p.color};
+      moved=true;
+    }
+    return moved;
+  }
+  // Show falling pieces moving one cell at a time. Continue checking after the
+  // board settles: falling jamo can complete a three-jamo syllable or a full row.
+  function settleAfterClear(){
+    state='settling';
+    function step(){
+      if(state!=='settling')return; // The game may have been restarted.
+      if(gravityStep()){
+        draw();
+        gravityTimer=setTimeout(step,GRAVITY_STEP_MS);
+      }else{
+        gravityTimer=null;
+        pruneMeta();
+        resolveMatches();
+      }
+    }
+    gravityTimer=setTimeout(step,GRAVITY_START_MS);
+  }
+  function prunePending(){
+    const live=new Set(board.flat().filter(Boolean).map(c=>c.id));
+    for(const [key,p] of pendingPairs)if(p.ids.some(id=>!live.has(id)))pendingPairs.delete(key);
+    for(const id of creditedJamoIds)if(!live.has(id))creditedJamoIds.delete(id);
+  }
+  function resolveMatches(){
+    // After each piece locks, check 3-jamo characters first. Existing 2-jamo
+    // characters remain until the player has placed HOLD_TURNS more pieces.
+    prunePending();
+    const {completed,incomplete}=matchSyllables(intactGroups().intact);
+    clearIds=new Set(completed.flatMap(s=>s.ids));
+    clearRows=[];
+    board.forEach((row,y)=>{if(row.filter(Boolean).length>=threshold)clearRows.push(y);});
+    const events=[];
+    let syllableBonus=0;
+    for(const triple of completed){
+      const alreadyPaid=triple.ids.slice(0,2).some(id=>creditedJamoIds.has(id));
+      const points=(BATCHIM_BONUS+(alreadyPaid?0:SYLLABLE_POINTS))*level;
+      if(!alreadyPaid)syllableCount++;
+      triple.ids.forEach(id=>creditedJamoIds.add(id));
+      pendingPairs.delete(triple.key);
+      syllableBonus+=points;
+      events.push({...triple,bonus:points});
+    }
+    for(const pair of incomplete){
+      if(pendingPairs.has(pair.key)||pair.ids.some(id=>creditedJamoIds.has(id)))continue;
+      pendingPairs.set(pair.key,{ids:pair.ids,ch:pair.ch,createdTurn:lockCount});
+      pair.ids.forEach(id=>creditedJamoIds.add(id));
+      const points=SYLLABLE_POINTS*level;
+      syllableCount++;
+      syllableBonus+=points;
+      events.push({...pair,kind:'pair',bonus:points});
+    }
+    // A pending pair is cleared after two ADDITIONAL placements. During this
+    // time, the user may add a final consonant to earn the extra batchim points.
+    const expiredPairs=[];
+    for(const [key,p] of pendingPairs){
+      if(lockCount-p.createdTurn<HOLD_TURNS)continue;
+      p.ids.forEach(id=>clearIds.add(id));
+      expiredPairs.push(p);
+      pendingPairs.delete(key);
+    }
+    score+=syllableBonus;
+    if(events.length){
+      announceSyllable(events,syllableBonus);
+      play('syllable');
+      speakWords(events.map(s=>s.ch));
+    }else if(expiredPairs.length){
+      // Show the actual assembled Hangul before clearing an unextended pair.
+      // The +100 bonus was already paid when the pair first formed.
+      el('word-title').textContent=expiredPairs[0].ch;
+      el('word-gloss').textContent=expiredPairs.length===1
+        ?'2字母完成・消去':`${expiredPairs.length}文字を消去`;
+      el('word-bonus').textContent='SYLLABLE CLEAR';
+      const pop=el('word-pop');
+      pop.classList.remove('show');void pop.offsetWidth;pop.classList.add('show');
+      clearTimeout(popTimer);
+      popTimer=setTimeout(()=>pop.classList.remove('show'),3400);
+    }
+    if(clearRows.length)play('line');
+    updateStats();
+    if(!clearIds.size&&!clearRows.length){
+      combo=0;state='playing';spawn();if(!events.length)updateSyllableHint();draw();
+      return;
+    }
+    // Preserve complete syllables longer than a row-only clear. This changes
+    // presentation time only, not match geometry, score or HOLD_TURNS.
+    const clearDelay=completed.length?COMPLETE_SYLLABLE_VIEW_MS
+      :expiredPairs.length?EXPIRED_PAIR_VIEW_MS:CLEAR_ANIMATION_MS;
+    state='clearing';draw();
+    clearTimer=setTimeout(()=>{
+      if(state!=='clearing')return;
+      const toRemove=new Set([...clearIds,...rowsTouchedPieces(clearRows)]);
+      removePieces(toRemove);
+      if(clearRows.length){
+        const n=clearRows.length;
+        board=board.filter((_,i)=>!clearRows.includes(i));
+        while(board.length<R)board.unshift(Array(C).fill(null));
+        lines+=n;combo++;level=1+Math.floor(lines/6);
+        const bonus=Math.floor((100*n*n+30*combo)*level);
+        score+=bonus;showToast(`${n} LINE CLEAR! +${bonus}`);
+      }else combo=0;
+      discardBrokenPieces();clearIds.clear();clearRows=[];
+      pruneMeta();prunePending();updateStats();draw();
+      settleAfterClear();
+    },clearDelay);
+  }
+  function lock(){
+    if(state!=='playing'||!active)return;
+    if(!placeActive())return;
+    lockCount++;
+    resolveMatches();
+  }
+  function play(type){
+    if(!soundOn)return;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      audio=audio||new AC();if(audio.state==='suspended')audio.resume();
+      const t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();
+      o.type=type==='over'?'sawtooth':'sine';o.frequency.setValueAtTime(type==='word'?850:type==='syllable'?720:type==='line'?680:type==='drop'?200:type==='over'?230:450,t);
+      if(type==='line'||type==='word')o.frequency.exponentialRampToValueAtTime(1100,t+.15);
+      if(type==='over')o.frequency.exponentialRampToValueAtTime(90,t+.3);
+      g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+(type==='over'?.36:.18));
+      o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+(type==='over'?.37:.19));
+    }catch(_){}
+  }
+  function showToast(s){const node=el('toast');node.textContent=s;node.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.classList.remove('show'),1000);}
+  function rounded(g,x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+  function tile(g,x,y,s,color){g.save();g.fillStyle=color;g.globalAlpha=.8;rounded(g,x+s*.06,y+s*.06,s*.88,s*.88,s*.13);g.fill();g.restore();}
+  // Draw by the actual ink bounds instead of the font's large, invisible
+  // advance box. Collision masks and visible letter sizes must agree closely.
+  // For slender vowels, limit aspect-ratio distortion rather than stretching
+  // one stroke to fill every possible pixel in its collision cells.
+  function glyph(g,p,s,ghost=false){
+    g.save();
+    g.translate((p.x+p.w/2)*s,(p.y+p.h/2)*s);
+    g.rotate(p.rot*Math.PI/2);
+    g.textAlign='center';g.textBaseline='middle';
+    const font='900 100px "Noto Sans CJK KR","Noto Sans KR","Malgun Gothic",sans-serif';
+    g.font=font;
+    const m=g.measureText(p.j);
+    const inkW=Math.max(1,m.actualBoundingBoxLeft+m.actualBoundingBoxRight);
+    const inkH=Math.max(1,m.actualBoundingBoxAscent+m.actualBoundingBoxDescent);
+    const width=p.baseW*s, height=p.baseH*s;
+    // Use 88% of each visual box and limit anisotropic scaling to 1.4:1.
+    let sx=width*.88/inkW, sy=height*.88/inkH;
+    if(sx>sy*1.4)sx=sy*1.4;
+    if(sy>sx*1.4)sy=sx*1.4;
+    const px=(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2;
+    const py=(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2;
+    g.scale(sx,sy);
+    g.globalAlpha=ghost?.35:1;
+    g.shadowColor=p.color;g.shadowBlur=ghost?0:s*.36;
+    g.lineJoin='round';g.lineWidth=2;
+    g.strokeStyle='#0a1429';g.strokeText(p.j,px,py);
+    g.fillStyle=ghost?'#b9d5e5':'#ffffff';g.fillText(p.j,px,py);
+    g.restore();
+  }
+  function drawShape(g,p,s,ghost=false){
+    // Collision uses the hidden grid mask. Visible graphics are whole letters;
+    // ghost display uses a faint letter instead of outlines of the mask cells.
+    glyph(g,p,s,ghost);
+  }
+  function draw(){
+    ctx.clearRect(0,0,C*U,R*U);ctx.fillStyle='#0b1729';ctx.fillRect(0,0,C*U,R*U);
+    for(let y=0;y<R;y++)for(let x=0;x<C;x++){ctx.fillStyle=(x+y)%2===0?'#112037':'#101d33';ctx.fillRect(x*U+1,y*U+1,U-2,U-2);}
+    const groups=intactGroups();
+    // Broken masks are cleared as whole pieces after row operations.
+    for(const p of groups.intact)drawShape(ctx,p,U);
+    if(active&&state==='playing'){
+      let gy=active.y;while(valid(active,0,gy-active.y+1))gy++;
+      drawShape(ctx,{...active,y:gy},U,true);
+    }
+    if(active&&(state==='playing'||state==='paused'))drawShape(ctx,active,U);
+    if(clearRows.length){ctx.fillStyle='#d5fbffa0';for(const y of clearRows)ctx.fillRect(0,y*U,C*U,U);}
+    if(clearIds.size){
+      ctx.save();ctx.shadowColor='#ffe990';ctx.shadowBlur=22;ctx.fillStyle='#ffe69485';
+      for(let y=0;y<R;y++)for(let x=0;x<C;x++)if(board[y][x]&&clearIds.has(board[y][x].id))ctx.fillRect(x*U+2,y*U+2,U-4,U-4);ctx.restore();
+    }
+    for(const p of particles){ctx.save();ctx.globalAlpha=(p.max-p.life)/p.max;ctx.fillStyle=p.color;ctx.shadowBlur=9;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,Math.max(1,3.5*(1-p.life/p.max)),0,Math.PI*2);ctx.fill();ctx.restore();}
+  }
+  function drawPreview(){px.clearRect(0,0,160,138);if(!next)return;
+    const s=Math.min(34,120/next.w,100/next.h),w=next.w*s,h=next.h*s;
+    drawShape(px,{...next,x:(160-w)/(2*s),y:(138-h)/(2*s),baseW:next.w,baseH:next.h,rot:0,color:next.c},s);
+    el('next-label').textContent=next.j;
+  }
+  function tick(now){
+    if(state==='playing'&&active){
+      const delta=lastTime?Math.min(100,now-lastTime):0;fallAccumulator+=delta;
+      const interval=Math.max(135,900*Math.pow(.83,level-1));
+      if(fallAccumulator>=interval){fallAccumulator%=interval;move(0,1);}
+    }
+    if(particles.length){for(const p of particles){p.x+=p.vx;p.y+=p.vy;p.vy+=.11;p.vx*=.99;p.life++;}particles=particles.filter(p=>p.life<p.max);draw();}
+    lastTime=now;requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  el('veil-button').addEventListener('click',()=>state==='paused'?togglePause():reset());
+  el('pause').addEventListener('click',()=>{if(state==='ready'||state==='over')return;togglePause();});
+  el('restart').addEventListener('click',()=>reset());
+  el('sound').addEventListener('click',()=>{const button=el('sound');soundOn=!soundOn;button.classList.toggle('sound-muted',!soundOn);button.setAttribute('aria-pressed',String(soundOn));button.setAttribute('aria-label',soundOn?'効果音を切る':'効果音を鳴らす');button.title=soundOn?'効果音 ON（押すとOFF）':'効果音 OFF（押すとON）';if(soundOn)play('rotate');});
+  function updateSpeechButton(){const b=el('speech');b.textContent=speechOn?'🔊':'🔇';b.setAttribute('aria-pressed',String(speechOn));const name='韓国語の発音 '+(speechOn?'ON（押すとOFF）':'OFF（押すとON）');b.setAttribute('title',name);b.setAttribute('aria-label',name);}
+  if(!speechSupported){speechOn=false;el('speech').disabled=true;el('speech').title='ブラウザーが音声合成に対応していません';}
+  updateSpeechButton();
+  el('speech').addEventListener('click',()=>{speechOn=!speechOn;updateSpeechButton();if(!speechOn&&synth)synth.cancel();showToast('文字の発音 '+(speechOn?'ON':'OFF'));});
+  el('speech-test').addEventListener('click',()=>{speakWords(['나'],true);if(speechSupported)showToast('発音テスト：나');});
+  el('skip-next').addEventListener('click',skipNext);
+  updateSkipButton();
+  el('rule').addEventListener('change',e=>{threshold=Number(e.target.value);el('rule-number').textContent=`${threshold} / ${C}`;if(state==='playing'||state==='clearing')showToast('次のブロックから新ルールを適用');});
+
+  const actions={left:()=>move(-1,0),right:()=>move(1,0),rotate,down:()=>{if(move(0,1)){score++;updateStats();}},drop:hardDrop};
+  for(const [id,action] of Object.entries(actions)){
+    const btn=el(id);let repeat=null,delay=null,handled=false;
+    const stop=()=>{clearTimeout(delay);clearInterval(repeat);repeat=null;delay=null;btn.classList.remove('pressed');};
+    btn.addEventListener('pointerdown',e=>{
+      if(e.button!==0)return;e.preventDefault();handled=true;btn.setPointerCapture?.(e.pointerId);btn.classList.add('pressed');action();
+      if(id==='left'||id==='right'||id==='down'){delay=setTimeout(()=>repeat=setInterval(action,id==='down'?58:90),230);}
+    });
+    btn.addEventListener('pointerup',stop);btn.addEventListener('pointercancel',stop);btn.addEventListener('lostpointercapture',stop);
+    btn.addEventListener('click',e=>{if(handled){handled=false;return;}action();});
+  }
+  window.addEventListener('keydown',e=>{
+    if(e.target.tagName==='SELECT')return;
+    const map={'ArrowLeft':'left','ArrowRight':'right','ArrowDown':'down','ArrowUp':'rotate',' ':'drop','x':'rotate','X':'rotate'};
+    if(e.key==='p'||e.key==='P'){e.preventDefault();if(state==='playing'||state==='paused')togglePause();return;}
+    if(e.key==='s'||e.key==='S'){e.preventDefault();skipNext();return;}
+    if(map[e.key]){e.preventDefault();if(!e.repeat||['left','right','down'].includes(map[e.key]))actions[map[e.key]]();}
+  });
+  let startTouch=null,trackX=0,dragged=false;
+  canvas.addEventListener('pointerdown',e=>{if(state!=='playing')return;startTouch={x:e.clientX,y:e.clientY};trackX=e.clientX;dragged=false;canvas.setPointerCapture?.(e.pointerId);});
+  canvas.addEventListener('pointermove',e=>{
+    if(!startTouch||state!=='playing')return;
+    const rect=canvas.getBoundingClientRect(),step=rect.width/C*.75;
+    while(e.clientX-trackX>=step){move(1,0);trackX+=step;dragged=true;}
+    while(e.clientX-trackX<=-step){move(-1,0);trackX-=step;dragged=true;}
+  });
+  canvas.addEventListener('pointerup',e=>{
+    if(!startTouch)return;
+    const dy=e.clientY-startTouch.y,dx=e.clientX-startTouch.x;
+    if(dy>Math.max(48,canvas.getBoundingClientRect().width*.17)){hardDrop();dragged=true;}
+    else if(!dragged&&Math.abs(dx)<20&&Math.abs(dy)<20)rotate();
+    startTouch=null;
+  });
+  canvas.addEventListener('pointercancel',()=>{startTouch=null;});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')togglePause();});
+  draw();drawPreview();
+})();
+</script>
+</body>
+</html>
