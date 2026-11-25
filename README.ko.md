@@ -26,13 +26,13 @@
 
 공개 소스코드 정적 검사와 로컬 브라우저 실행 검사를 실시했습니다. **검사한 범위**에서는 외부 통신 API, 알려진 인증정보 패턴, 외부 네트워크 요청이 발견되지 않았습니다. 그러나 **제3자 보안 인증이나 절대적인 안전 보장을 의미하지는 않습니다**. GitHub Pages의 접속 기록, 기기의 음성 합성 서비스, 서버의 HTTP 보안 헤더는 별도로 고려해야 합니다.
 
-실제 공개 사이트를 대상으로 한 ZAP 검사에서는 **PASS 55 / WARN 13종 / FAIL 0**이 나왔고, CSP 및 클릭재킹 방지 헤더 부족 등이 지적되었습니다. 이는 **취약점이 전혀 없다는 보장이 아닙니다**. 자세한 내용과 원본 검사 링크는 **[외부 도구 검사 결과(일본어)](INDEPENDENT_SECURITY_CHECKS.md)**, 검사 범위와 재실행 방법은 [자체 점검 보고서](SECURITY_AUDIT.md)에 있습니다.
+**CSP 적용 완료:** 정확한 SHA-256 해시가 일치하는 JavaScript와 CSS만 허용하며 불필요한 외부 통신과 승인되지 않은 스크립트를 차단합니다. 게임 조작 및 악성 코드 삽입 차단을 브라우저에서 테스트했습니다. ZAP 재검사 결과는 **PASS 56 / WARN 12종 / FAIL 0**(적용 전: PASS 55 / WARN 13종 / FAIL 0)이지만 클릭재킹 방지 등 경고는 남아 있습니다. **보안이 완벽하다는 증명은 아닙니다.** 자세한 내용은 [외부 도구의 측정 결과(일본어)](INDEPENDENT_SECURITY_CHECKS.md)와 [자체 보안 점검](SECURITY_AUDIT.md)을 참조하세요.
 
 ## 소스코드 및 운영
 
 - 게임 주소: <https://keides2.github.io/hangul-drop-site/>
 - 소스코드: `index.html` (외부 빌드 도구나 패키지 관리자 불필요)
-- 자동 정적 검사: `python3 tests/security_audit.py`
+- 자동 정적 검사: `python3 tests/security_audit.py` / CSP 해시 확인: `python3 tools/csp_hashes.py --check`
 - 브라우저 테스트(선택 사항): `python3 tests/browser_security_smoke.py` (Playwright 및 Chromium 필요)
 - 이 공개 저장소에는 비공개 개발 저장소의 과거 Git 기록이 포함되어 있지 않습니다.
 
