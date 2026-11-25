@@ -1,0 +1,33 @@
+name: ZAP passive website scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - .github/workflows/zap-baseline.yml
+  schedule:
+    - cron: '43 2 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  passive-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: ZAP baseline passive scan of our public game
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'https://keides2.github.io/hangul-drop-site/'
+          allow_issue_writing: false
+          fail_action: false
+          cmd_options: '-m 1'
+          artifact_name: 'hangul-drop-zap-passive-report'
+      # IMPORTANT: With fail_action=false, a green job only confirms
+      # successful execution; it does NOT mean there were zero alerts.
+      # Download the attached ZAP report and review each warning.
