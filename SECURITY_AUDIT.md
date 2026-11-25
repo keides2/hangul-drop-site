@@ -1,9 +1,9 @@
 # ハングルドロップ公開サイト：セキュリティ自己監査結果
 
 **実施日：2026年11月25日** ／ 対象：[`keides2/hangul-drop-site`](https://github.com/keides2/hangul-drop-site)（公開用 `main`）  
-**ゲーム本体のGit blob SHA：** `66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`
+**現行ゲーム本体のGit blob SHA：** `3e938f0408bac927baa3ea5ecfb03955f6ba1ac4`（CSP導入前：`66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`）
 
-**総合判断：自己監査では対象パターンに重大な異常は検出されませんでした。ただし、ZAPの稼働サイト診断では13種類の警告を検出しています。** 「安全認証済み」「脆弱性ゼロ」ではありません。**[独立した検査エンジンの実行結果・警告詳細](INDEPENDENT_SECURITY_CHECKS.md)** を併せて確認してください。
+**総合判断：自己監査では対象パターンに重大な異常は検出されませんでした。CSP導入後のZAP再診断では12種類の警告が残っています（導入前は13種類）。** 「安全認証済み」「脆弱性ゼロ」ではありません。**[独立した検査エンジンの実行結果・警告詳細](INDEPENDENT_SECURITY_CHECKS.md)** を併せて確認してください。
 
 ## 検査項目・測定値
 
@@ -46,10 +46,10 @@ Chromium + Playwrightを使い、公開版と同じ内容の `index.html` をロ
 
 1. **専門家による第三者監査・ペネトレーションテストは未実施。** CodeQL・ZAPによる自動診断を実施しましたが、既知パターンに該当しない脆弱性を否定できません。
 2. **本番HTTPヘッダーはZAP 2.17.0で測定済み。** [外部検査結果](INDEPENDENT_SECURITY_CHECKS.md)のとおり、CSP、クリックジャッキング対策、`X-Content-Type-Options`などの警告があります。TLS証明書の詳細やMozilla Observatoryの点数は未測定です。
-3. **CSPの強制は確認されておらず、ZAPはCSPヘッダーなしをMediumと評価しました。** ゲーム本体にはインラインJavaScriptとCSSがあり、適切なCSPを導入するには設計とブラウザー回帰試験が必要です。GitHub Pages側のHTTPヘッダー設定には制約があります。
+3. **CSPはHTMLのmetaで適用済み。** インラインJavaScript／CSSを正確なSHA-256ハッシュで許可し、それ以外のスクリプトや外部通信等は拒否します。Chromiumの3画面と不正スクリプト・CSS・通信の否定試験を通過しました。**HTTPレスポンスヘッダーとしてのCSPは設定されておらず、`frame-ancestors` はmetaでは使用できません。** GitHub Pages側の制約が残ります。
 4. **通信0件はテストした操作・環境での観測値。** すべての端末・音声エンジン・操作経路の結果ではありません。
 5. **GitHubのシークレットスキャン警告一覧やリポジトリ設定は未照会。** 管理画面での確認を推奨します。
-6. 外部のZAP検査には**FAIL 0 / WARN 13種類 / PASS 55**が含まれます（[原本リンク・内容の解説](INDEPENDENT_SECURITY_CHECKS.md)）。CodeQLの実行は成功し、HTML 1件の解析もログで確認しましたが、CodeQLの警告件数は未確認です。
+6. CSP適用後のZAP再検査は**FAIL 0 / WARN 12種類 / PASS 56**（導入前はFAIL 0 / WARN 13種類 / PASS 55）です（[原本リンク・内容の解説](INDEPENDENT_SECURITY_CHECKS.md)）。CodeQLの実行は成功し、HTML 1件の解析もログで確認しましたが、CodeQLの警告件数は未確認です。
 7. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
 
 ## 再現手順・継続チェック
@@ -58,6 +58,7 @@ Python標準ライブラリだけで静的検査できます。
 
 ```bash
 python3 tests/security_audit.py
+python3 tools/csp_hashes.py --check
 ```
 
 ブラウザーテスト（任意、Playwright + Chromiumが必要）：
@@ -66,6 +67,7 @@ python3 tests/security_audit.py
 python -m pip install playwright
 python -m playwright install chromium
 python tests/browser_security_smoke.py
+python tests/csp_browser_smoke.py
 ```
 
 GitHub Actionsの **[Public site security checks](https://github.com/keides2/hangul-drop-site/actions/workflows/security-audit.yml)** は`main`へのpushやプルリクエストのたびに静的検査を再実行します。加えて、[CodeQL](https://github.com/keides2/hangul-drop-site/actions/workflows/codeql.yml) と [ZAP](https://github.com/keides2/hangul-drop-site/actions/workflows/zap-baseline.yml) の検査も利用できます。**緑色の実行結果だけで警告0件とは判断しないでください。**
