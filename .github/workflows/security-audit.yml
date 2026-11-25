@@ -18,3 +18,21 @@ jobs:
         uses: actions/checkout@v4
       - name: Check for network, secret, and injection patterns
         run: python3 tests/security_audit.py
+      - name: Verify exact CSP hashes and strict directives
+        run: python3 tools/csp_hashes.py --check
+
+  csp-browser-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out public source
+        uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install Chromium test runner
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Verify gameplay and blocked attacks under CSP
+        run: python tests/csp_browser_smoke.py
