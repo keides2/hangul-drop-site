@@ -26,13 +26,13 @@
 
 公開コードに対して静的検査とローカルブラウザーテストを行いました。**検査した範囲**では外部通信API・既知の認証情報・外部ネットワークリクエストは検出されていません。ただし、**第三者によるセキュリティ認証でも、絶対的な安全性の保証でもありません**。GitHub Pages側のアクセスログ、端末の音声合成サービス、本番HTTPヘッダーは検査範囲が異なります。
 
-さらに実際の公開サイトに対するZAP診断では **PASS 55 / WARN 13種類 / FAIL 0** と報告され、CSPやクリックジャッキング対策ヘッダーの不足が指摘されています。これは**脆弱性ゼロの証明ではありません**。検査ログと警告の詳細は **[外部ツールによる検査結果](INDEPENDENT_SECURITY_CHECKS.md)** に掲載しています。自己監査の範囲・再実行手順は [こちら](SECURITY_AUDIT.md)。
+**CSP導入済み：** 正しいSHA-256ハッシュを持つJavaScriptとCSSだけを許可し、不要な外部通信と不正なスクリプトを制限しています。ブラウザーのゲーム操作と不正コード挿入の否定試験を実施しました。ZAP再検査では **PASS 56 / WARN 12種類 / FAIL 0**（導入前はPASS 55 / WARN 13種類 / FAIL 0）。ただしクリックジャッキング対策等の警告は残り、**安全性の保証ではありません**。詳細は **[外部ツールの実測結果](INDEPENDENT_SECURITY_CHECKS.md)** と [自己監査](SECURITY_AUDIT.md) を参照してください。
 
 ## ソースコード・運用
 
 - 公開サイト：<https://keides2.github.io/hangul-drop-site/>
 - ゲーム本体：`index.html`（外部ビルド・パッケージ管理不要）
-- 静的検査：`python3 tests/security_audit.py`
+- 静的検査：`python3 tests/security_audit.py` ／ CSPハッシュ検証：`python3 tools/csp_hashes.py --check`
 - ブラウザーテスト（任意）：`python3 tests/browser_security_smoke.py`（Playwright + Chromiumが必要）
 - この公開リポジトリには、非公開開発リポジトリのGit履歴を移植していません。
 
