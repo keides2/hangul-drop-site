@@ -2,9 +2,43 @@
 
 **Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
-**[▶ Play the game](https://keides2.github.io/hangul-drop-site/)** | **[Independent-tool evidence: CodeQL / ZAP (13 warning categories; Japanese)](INDEPENDENT_SECURITY_CHECKS.md)** | [Self-assessment](SECURITY_AUDIT.md)
+**[▶ Play the game](https://keides2.github.io/hangul-drop-site/)** | **[Independent-tool evidence: CodeQL / ZAP (12 warning categories; Japanese)](INDEPENDENT_SECURITY_CHECKS.md)** | [Self-assessment](SECURITY_AUDIT.md)
 
 Hangul Drop is a mobile-friendly falling-block puzzle game. Arrange Korean letters (*jamo*: consonants, vowels and final consonants, or *batchim*) to form syllables. It runs in a web browser; no installation or account is required.
+
+## New to Hangul? Consonants, vowels, and batchim
+
+In Hangul, **an initial consonant and a vowel form a syllable**. You can also add a final consonant below it. This final consonant is called **batchim**.
+
+| Type | Jamo used in this game |
+| --- | --- |
+| **Consonants** | ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅋ, ㅎ |
+| **Vowels** | ㅏ, ㅓ, ㅗ, ㅜ, ㅡ, ㅣ |
+| **Batchim (final consonants)** | ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅋ, ㅎ |
+
+**Batchim is not a different kind of block.** It is the name for a consonant used at the bottom of a syllable.
+
+### Start with two jamo
+
+| Consonant + vowel | Syllable | Approximate romanization |
+| --- | --- | --- |
+| ㅋ + ㅏ | **카** | ka |
+| ㄷ + ㅜ | **두** | du |
+| ㅅ + ㅏ | **사** | sa |
+
+Place **ㅏ, ㅓ, or ㅣ to the right** of the consonant, and **ㅗ, ㅜ, or ㅡ below** it. A valid two-jamo combination earns **100 points**.
+
+### Then add a batchim
+
+| Consonant + vowel + batchim | Syllable | Approximate romanization |
+| --- | --- | --- |
+| ㅋ + ㅏ + ㄴ | **칸** | kan |
+| ㄷ + ㅜ + ㄱ | **둑** | duk |
+| ㅅ + ㅏ + ㄴ | **산** | san |
+
+A two-jamo syllable stays on the board for **two more block landings**. Add a batchim beneath it during that time for **another 200 points**. Otherwise, it is displayed for 2.3 seconds after those landings, then cleared.
+
+*Pronunciations are only approximate. The game uses simplified placement and collision rules.*
 
 ## How to play
 
