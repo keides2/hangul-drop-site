@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'; script-src 'sha256-yWLZYPkbYnX6DqUdH8MKwzjoKfLZ1KOSFoVo/4vraa8='; script-src-attr 'none'; style-src 'sha256-tpA9iDMdAxbijI7QEeK1WY3t6DGtApcJW0G5OopMvBs='; style-src-attr 'none'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'; script-src 'sha256-aqbE27v8xI5+ic22Gqq9MFnmMW2g/pZG+Zg2wQCW78E='; script-src-attr 'none'; style-src 'sha256-pTMtA9b9GxHeODbplCsjV/vP4ZMT1tUFrZf80mS9K6Q='; style-src-attr 'none'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
   <meta name="theme-color" content="#0a1222" />
   <meta name="description" content="ハングルの子音と母音を積み上げる、スマホで遊べる落ち物パズル。" />
@@ -90,6 +90,8 @@
     @keyframes wordBurst{0%{opacity:0;transform:translate(-50%,-5%) scale(.55)}12%{opacity:1;transform:translate(-50%,-25%) scale(1.10)}35%{transform:translate(-50%,-25%) scale(1)}76%{opacity:1}100%{opacity:0;transform:translate(-50%,-75%) scale(1)}}
     @media(max-width:599px){.header-btns{gap:4px}.header-btns .small-button{height:36px;min-width:32px;padding:0 6px;font-size:16px}.brandmark{width:37px;height:37px;font-size:24px}.brand{gap:6px}.brand h1{font-size:clamp(18px,4.8vw,23px)}.subtitle{font-size:10px;letter-spacing:.01em}}
     .word-hint{display:block;color:#9fbed5;font-size:11px;line-height:1.4;min-height:15px;text-align:center;margin-top:-4px}
+    .piece-kind{position:absolute;left:9px;top:9px;z-index:1;pointer-events:none;border:1px solid #527d94;background:#101e31d9;color:#d9f8ff;font-size:11px;font-weight:800;line-height:1.25;border-radius:7px;padding:4px 7px}
+    .next-kind{color:#b7d9eb;font-size:11px;font-weight:800}
     @media(max-width:599px){
       .shell{max-width:440px}
       .game-area{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:370px}
@@ -130,13 +132,14 @@
   <div class="game-area">
     <div class="board-wrap">
       <canvas id="board" width="512" height="736" role="img" aria-label="ハングルのブロックが落下するゲーム盤。タップで回転、左右スワイプで移動、下スワイプで一気に落とします。"></canvas>
+      <div class="piece-kind" id="piece-kind" aria-label="落下中の字母の種類">落下中：―</div>
       <div class="word-pop" id="word-pop" aria-live="polite"><strong id="word-title"></strong><span id="word-gloss"></span><span class="bonus" id="word-bonus"></span></div>
       <div class="veil" id="veil"><div><h2 class="overlay-title" id="veil-title">한글で遊ぼう！</h2><p class="overlay-note" id="veil-note">母音は子音の右または下にそろえて+100点
 パッチムは文字の下に配置すると+200点
 2回の着地後に消去 · 横一列消去も有効！</p><button type="button" class="primary" id="veil-button">ゲーム開始</button></div></div>
     </div>
     <aside class="side">
-      <section class="panel"><div class="panel-title">NEXT · 次の文字</div><div class="next-box"><canvas id="next" width="160" height="138" aria-label="次に落ちる文字"></canvas><div id="next-label">ㄱ</div></div><button type="button" class="skip-next" id="skip-next" aria-label="次の字母候補をスキップする">⏭ スキップ <span class="skip-count" id="skip-count">残り3回</span></button></section>
+      <section class="panel"><div class="panel-title">NEXT · 次の文字</div><div class="next-box"><canvas id="next" width="160" height="138" aria-label="次に落ちる文字"></canvas><div id="next-label">ㄱ</div><span id="next-kind" class="next-kind">子音</span></div><button type="button" class="skip-next" id="skip-next" aria-label="次の字母候補をスキップする">⏭ スキップ <span class="skip-count" id="skip-count">残り3回</span></button></section>
       <section class="panel"><div class="panel-title">CLEAR RULE</div><div class="rule-large" id="rule-number">13 / 16</div><div class="rule-small">横１列がこれだけ埋まると消える</div><label for="rule" class="rule-label">難易度</label><select id="rule" class="rule-select" aria-label="消去条件"><option value="11">やさしい · 約70%</option><option value="13" selected>ふつう · 約80%</option><option value="16">難しい · 100%</option></select></section>
       <section class="panel help"><div class="panel-title">操作方法</div><b>↔</b> 左右に移動<br><b>⟳</b> 文字を回転<br><b>↓</b> 早く落とす<br><b>⤓</b> 一気に落とす<br><b>⏭</b> NEXT候補を変更（3回）<br>盤面を<b>タップ</b>で回転</section>
     </aside>
@@ -213,6 +216,7 @@
   const VOWELS=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
   const VERTICAL=new Set(['ㅏ','ㅓ','ㅣ']);
   const HORIZONTAL=new Set(['ㅗ','ㅜ','ㅡ']);
+  const jamoType=j=>VOWELS.includes(j)?'母音':ONSETS.includes(j)?'子音':'字母';
   try{best=Number(localStorage.getItem('jamo-drop-syllableclear-best'))||0;}catch(_){ }
   el('best').textContent=best.toLocaleString('ja-JP');
 
@@ -241,7 +245,7 @@
   }
   function piece(shape){return {x:Math.floor((C-shape.w)/2),y:0,cells:shape.cells.map(c=>({...c})),w:shape.w,h:shape.h,baseW:shape.w,baseH:shape.h,rot:0,color:shape.c,j:shape.j};}
   function valid(p,ox=0,oy=0,cells=p.cells){return cells.every(({x,y})=>{const bx=p.x+x+ox,by=p.y+y+oy;return bx>=0&&bx<C&&by<R&&(by<0||board[by][bx]===null);});}
-  function spawn(){active=piece(next||pick());next=pick();drawPreview();if(!valid(active)){state='over';showVeil('ゲームオーバー',`スコア ${score.toLocaleString('ja-JP')} 点\nもう一度チャレンジ！`,'もう一度');play('over');}}
+  function spawn(){active=piece(next||pick());next=pick();drawPreview();el('piece-kind').textContent=`落下中：${active.j}（${jamoType(active.j)}）`;if(!valid(active)){state='over';showVeil('ゲームオーバー',`スコア ${score.toLocaleString('ja-JP')} 点\nもう一度チャレンジ！`,'もう一度');play('over');}}
   function reset(){
     clearTimeout(clearTimer);clearTimeout(gravityTimer);gravityTimer=null;clearTimeout(popTimer);clearTimeout(hintTimer);if(synth)try{synth.cancel();}catch(_){};clearRows=[];clearIds.clear();board=empty();lockedMeta.clear();seq=0;particles=[];syllableCount=0;lockCount=0;pendingPairs.clear();creditedJamoIds.clear();active=null;next=pick();score=0;lines=0;level=1;combo=0;fallAccumulator=0;lastTime=0;state='playing';
     skipsLeft=SKIP_LIMIT;updateSkipButton();
@@ -306,14 +310,19 @@
         if(v.id===c.id||v.rot!==0)continue;
         // A Korean syllable is spatially organized, not just a cluster.
         // Vertical vowels belong to the RIGHT, horizontal vowels BELOW.
-        // Permit at most one empty grid cell and one-cell alignment error.
+        // Collision uses occupied cells, not the rectangle around a glyph.
+        // A vowel may enter an EMPTY notch in that rectangle by one cell.
+        // The vowel must still be on the right (vertical) or below (horizontal),
+        // align within one cell, and remain separate from the consonant's cells.
+        const occupied=new Set(c.cells.map(cell=>`${cell.x},${cell.y}`));
+        if(v.cells.some(cell=>occupied.has(`${cell.x},${cell.y}`)))continue;
         let gap=Infinity,offset=Infinity;
         if(VERTICAL.has(v.j)){
           gap=v.x-c.right;offset=Math.abs(v.cy-c.cy);
-          if(gap<0||gap>1||offset>1.0)continue;
+          if(gap< -1||gap>1||offset>1.0||v.cx<=c.cx)continue;
         }else if(HORIZONTAL.has(v.j)){
           gap=v.y-c.bottom;offset=Math.abs(v.cx-c.cx);
-          if(gap<0||gap>1||offset>1.0)continue;
+          if(gap< -1||gap>1||offset>1.0||v.cy<=c.cy)continue;
         }else continue;
         const ch=compose(c.j,v.j);if(!ch)continue;
         candidates.push({ch,ids:[c.id,v.id],x:Math.min(c.x,v.x),y:Math.min(c.y,v.y),
@@ -367,7 +376,10 @@
       ?'パッチム付き3字母完成！':`2字母完成！ あと${HOLD_TURNS}手で消去`;
     el('word-bonus').textContent=`SYLLABLE BONUS +${bonus.toLocaleString('ja-JP')}`;
     const pop=el('word-pop');pop.classList.remove('show');void pop.offsetWidth;pop.classList.add('show');
-    el('word-hint').textContent=`音節 ${syllableCount}文字 · ${events.map(s=>s.ch).join('・')} +${bonus.toLocaleString('ja-JP')}点`;
+    const madePairs=events.filter(e=>e.kind==='pair');
+    el('word-hint').textContent=madePairs.length
+      ?`2字母成立：${madePairs.map(e=>e.ch).join('・')} · +${bonus.toLocaleString('ja-JP')}点 · パッチム待ち（あと${HOLD_TURNS}手）`
+      :`音節 ${syllableCount}文字 · ${events.map(s=>s.ch).join('・')} +${bonus.toLocaleString('ja-JP')}点`;
     clearTimeout(hintTimer);hintTimer=setTimeout(updateSyllableHint,3800);
     clearTimeout(popTimer);popTimer=setTimeout(()=>pop.classList.remove('show'),3400);
     for(let i=0;i<20;i++){
@@ -601,7 +613,9 @@
     for(let y=0;y<R;y++)for(let x=0;x<C;x++){ctx.fillStyle=(x+y)%2===0?'#112037':'#101d33';ctx.fillRect(x*U+1,y*U+1,U-2,U-2);}
     const groups=intactGroups();
     // Broken masks are cleared as whole pieces after row operations.
-    for(const p of groups.intact)drawShape(ctx,p,U);
+    // Highlight confirmed pairs while the player can still add a batchim.
+    const heldIds=new Set([...pendingPairs.values()].flatMap(p=>p.ids));
+    for(const p of groups.intact)drawShape(ctx,heldIds.has(p.id)?{...p,color:'#ffe285'}:p,U);
     if(active&&state==='playing'){
       let gy=active.y;while(valid(active,0,gy-active.y+1))gy++;
       drawShape(ctx,{...active,y:gy},U,true);
@@ -618,6 +632,7 @@
     const s=Math.min(34,120/next.w,100/next.h),w=next.w*s,h=next.h*s;
     drawShape(px,{...next,x:(160-w)/(2*s),y:(138-h)/(2*s),baseW:next.w,baseH:next.h,rot:0,color:next.c},s);
     el('next-label').textContent=next.j;
+    el('next-kind').textContent=jamoType(next.j);
   }
   function tick(now){
     if(state==='playing'&&active){
