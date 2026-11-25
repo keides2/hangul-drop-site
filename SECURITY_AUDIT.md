@@ -1,0 +1,77 @@
+# ハングルドロップ公開サイト：セキュリティ自己監査結果
+
+**実施日：2026年11月25日** ／ 対象：[`keides2/hangul-drop-site`](https://github.com/keides2/hangul-drop-site)（公開用 `main`）  
+**ゲーム本体のGit blob SHA：** `66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`
+
+**総合判断：限定的な自己監査で重大な異常は検出されませんでした。** これは検査範囲内の結果であり、第三者による安全認証、脆弱性ゼロの証明、運営する全サービスへの保証ではありません。
+
+## 検査項目・測定値
+
+| 分類 | 項目 | 観測結果 |
+| --- | --- | --- |
+| 公開コード | ゲーム本体 | HTML 1ファイル |
+| 外部依存 | ゲーム中に読み込む外部JavaScript・CSS・画像 | **0件** |
+| 通信処理 | `fetch` / XHR / WebSocket / EventSource / `sendBeacon` | **0件** |
+| ブラウザー動作 | 試験した3画面・基本操作で観測した外部リクエスト | **0件** |
+| ブラウザー動作 | 試験中のJavaScript実行例外 | **0件** |
+| 認証情報 | 典型的なトークン・APIキー・秘密鍵のパターン | **0件** |
+| 個人情報 | 公開ファイル中のメールアドレス形式 | **0件** |
+| コード評価 | `eval` / `new Function` などの動的コード実行パターン | **0件** |
+| DOM | `innerHTML` 等のHTML文字列挿入パターン | **0件** |
+| 保存データ | `localStorage` | **最高得点の読込1箇所・書込1箇所** |
+| 広告・解析 | アプリ内の広告SDK・アクセス解析SDK | **実装なし** |
+| 配布履歴 | 公開リポジトリの初期コミット | **非公開開発履歴を含まない1件から開始** |
+| メール保護 | 確認した公開Gitコミット | **GitHubの非公開用メールアドレス** |
+| 公開処理 | GitHub Pagesデプロイ | **成功実行履歴を確認** |
+
+上記のソースコード検査は **`tests/security_audit.py`** に基づくパターン検査です。対象ファイルやパターンに依存するため、網羅的な脆弱性診断ではありません。
+
+## ブラウザーでの実行確認
+
+Chromium + Playwrightを使い、公開版と同じ内容の `index.html` をローカルで実行しました。検査画面は **390×844、360×640、844×390** の3種類です。
+
+ゲーム開始、左右移動、一気に落下、NEXTスキップ、効果音のON/OFFを操作し、試験中のブラウザー例外0件、観測した外部ネットワーク要求0件を確認しました。
+
+**注意：** ローカルHTMLのブラウザー試験であり、本番のGitHub Pagesサーバーとの通信内容やセキュリティヘッダーを測定した結果ではありません。音声合成エンジンの内部通信も対象外です。
+
+## プライバシーの範囲
+
+- アカウント登録、アプリ独自のサーバー送信、広告、アクセス解析は、現行ゲーム本体にはありません。
+- 保存するのは最高得点のみで、ブラウザーのサイトデータ削除によって消去できます。
+- **GitHub Pages側ではアクセスしたIPアドレスなどが記録され得ます。** これはゲームのJavaScriptが外部送信するかとは別の話です。
+- 韓国語読み上げはブラウザー／端末の音声合成機能を使用します。OSや音声エンジン側の処理はこの監査の対象外です。
+- 初期公開時の非公開開発リポジトリのコミット履歴は移植していません。**今後の公開コミットには作成者の表示名が記録される**ため、公開可能な表示名かどうかは別途確認が必要です。
+
+## 未検証事項・残るリスク
+
+1. **第三者監査・ペネトレーションテストは未実施。** 既知パターンに該当しない脆弱性を否定できません。
+2. **本番HTTPレスポンスのセキュリティヘッダーは未測定。** この環境では公開URLへの直接HTTP検証が行えませんでした。GitHubの公式資料では、`github.io` サイトはHTTPSで配信されますが、今回TLS証明書やHTTPヘッダーを独立に測定したわけではありません。
+3. **CSP（Content Security Policy）の強制は未検証。** ゲーム本体はインラインのJavaScriptとCSSを含み、現状HTML側のCSPメタ指定はありません。GitHub Pagesでは自由なHTTPヘッダー設定に制約があります。
+4. **通信0件はテストした操作・環境での観測値。** すべての端末・音声エンジン・操作経路の結果ではありません。
+5. **GitHubのシークレットスキャン警告一覧やリポジトリ設定は未照会。** 管理画面での確認を推奨します。
+6. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
+
+## 再現手順・継続チェック
+
+Python標準ライブラリだけで静的検査できます。
+
+```bash
+python3 tests/security_audit.py
+```
+
+ブラウザーテスト（任意、Playwright + Chromiumが必要）：
+
+```bash
+python -m pip install playwright
+python -m playwright install chromium
+python tests/browser_security_smoke.py
+```
+
+GitHub Actionsの **[Public site security checks](https://github.com/keides2/hangul-drop-site/actions/workflows/security-audit.yml)** は、`main` へのpushやプルリクエストのたびに静的検査を再実行します。**PASSは定義された項目の検査成功だけを意味します。**
+
+## 参考（GitHub公式・公開情報）
+
+- [GitHub Pages：HTTPSによる公開](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)
+- [GitHub Pages：アクセス時のIPアドレスのログ](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
+- [GitHub：Secret scanning](https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning)
+- [GitHub Community：PagesでのカスタムHTTPヘッダーの制約](https://github.com/orgs/community/discussions/54257)
