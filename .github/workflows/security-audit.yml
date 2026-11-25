@@ -1,0 +1,20 @@
+name: Public site security checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out public site source
+        uses: actions/checkout@v4
+      - name: Check for network, secret, and injection patterns
+        run: python3 tests/security_audit.py
