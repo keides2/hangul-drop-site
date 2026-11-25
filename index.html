@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'; script-src 'sha256-yWLZYPkbYnX6DqUdH8MKwzjoKfLZ1KOSFoVo/4vraa8='; script-src-attr 'none'; style-src 'sha256-tpA9iDMdAxbijI7QEeK1WY3t6DGtApcJW0G5OopMvBs='; style-src-attr 'none'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
   <meta name="theme-color" content="#0a1222" />
   <meta name="description" content="ハングルの子音と母音を積み上げる、スマホで遊べる落ち物パズル。" />
@@ -107,12 +108,17 @@
     @media(max-width:380px){.side .panel{padding:5px 6px}.stats{gap:5px;margin-bottom:8px}.stat{padding:6px 7px}.head{margin-bottom:7px}}
     @media(max-height:490px) and (orientation:landscape){.game-area{display:grid;grid-template-columns:minmax(0,1fr) 116px;max-width:410px;gap:7px}.board-wrap{width:min(100%,calc((100dvh - 59px)*16/23))}.side{display:grid;grid-template-columns:1fr;width:auto}.word-hint{display:none}.ctrl{height:48px}}
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+    /* Static classes replace inline style attributes, so style-src-attr can be none. */
+    .brand-drop{color:#6fe0ee}
+    .rule-label{font-size:10px;color:#99abc4;display:block;margin-top:8px}
+    .speech-test-row{margin-top:4px}
+    .speech-test-button{font:inherit;color:#baf5fd;background:transparent;border:1px solid #45617c;border-radius:8px;padding:3px 10px}
   </style>
 </head>
 <body>
 <main class="shell">
   <header class="head">
-    <div class="brand"><div class="brandmark" aria-hidden="true">ㅎ</div><div><h1>자모 <span style="color:#6fe0ee">DROP</span></h1><div class="subtitle">PHASE 1 · ハングルの配置に挑戦</div></div></div>
+    <div class="brand"><div class="brandmark" aria-hidden="true">ㅎ</div><div><h1>자모 <span class="brand-drop">DROP</span></h1><div class="subtitle">PHASE 1 · ハングルの配置に挑戦</div></div></div>
     <div class="header-btns"><button type="button" class="small-button sound-muted" id="sound" title="効果音 OFF（押すとON）" aria-label="効果音を鳴らす" aria-pressed="false">♪</button><button type="button" class="small-button" id="speech" title="韓国語の発音 ON（押すとOFF）" aria-label="韓国語の発音 ON（押すとOFF）" aria-pressed="true">🔊</button><button type="button" class="small-button" id="pause" title="一時停止" aria-label="一時停止">Ⅱ</button><button type="button" class="small-button" id="restart" title="最初から" aria-label="最初から">↻</button></div>
   </header>
   <section class="stats" aria-label="スコア">
@@ -131,12 +137,12 @@
     </div>
     <aside class="side">
       <section class="panel"><div class="panel-title">NEXT · 次の文字</div><div class="next-box"><canvas id="next" width="160" height="138" aria-label="次に落ちる文字"></canvas><div id="next-label">ㄱ</div></div><button type="button" class="skip-next" id="skip-next" aria-label="次の字母候補をスキップする">⏭ スキップ <span class="skip-count" id="skip-count">残り3回</span></button></section>
-      <section class="panel"><div class="panel-title">CLEAR RULE</div><div class="rule-large" id="rule-number">13 / 16</div><div class="rule-small">横１列がこれだけ埋まると消える</div><label for="rule" style="font-size:10px;color:#99abc4;display:block;margin-top:8px">難易度</label><select id="rule" class="rule-select" aria-label="消去条件"><option value="11">やさしい · 約70%</option><option value="13" selected>ふつう · 約80%</option><option value="16">難しい · 100%</option></select></section>
+      <section class="panel"><div class="panel-title">CLEAR RULE</div><div class="rule-large" id="rule-number">13 / 16</div><div class="rule-small">横１列がこれだけ埋まると消える</div><label for="rule" class="rule-label">難易度</label><select id="rule" class="rule-select" aria-label="消去条件"><option value="11">やさしい · 約70%</option><option value="13" selected>ふつう · 約80%</option><option value="16">難しい · 100%</option></select></section>
       <section class="panel help"><div class="panel-title">操作方法</div><b>↔</b> 左右に移動<br><b>⟳</b> 文字を回転<br><b>↓</b> 早く落とす<br><b>⤓</b> 一気に落とす<br><b>⏭</b> NEXT候補を変更（3回）<br>盤面を<b>タップ</b>で回転</section>
     </aside>
   </div>
   <p class="word-hint" id="word-hint" aria-live="polite">母音は子音の右/下、パッチムは完成文字の下に配置！</p>
-  <p class="word-hint" style="margin-top:4px"><button type="button" id="speech-test" style="font:inherit;color:#baf5fd;background:transparent;border:1px solid #45617c;border-radius:8px;padding:3px 10px" aria-label="韓国語の発音を試す">▶ 発音テスト「나」</button></p>
+  <p class="word-hint speech-test-row"><button type="button" id="speech-test" class="speech-test-button" aria-label="韓国語の発音を試す">▶ 発音テスト「나」</button></p>
   <section class="controls" aria-label="ゲーム操作">
     <button type="button" class="ctrl" id="left" aria-label="左に移動">←<span class="desc">左へ</span></button>
     <button type="button" class="ctrl" id="right" aria-label="右に移動">→<span class="desc">右へ</span></button>
