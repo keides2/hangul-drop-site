@@ -2,7 +2,7 @@
 
 **Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
-**[▶ Play the game](https://keides2.github.io/hangul-drop-site/)** | **[Security assessment and limitations](SECURITY_AUDIT.md)**
+**[▶ Play the game](https://keides2.github.io/hangul-drop-site/)** | **[Independent-tool evidence: CodeQL / ZAP (13 warning categories; Japanese)](INDEPENDENT_SECURITY_CHECKS.md)** | [Self-assessment](SECURITY_AUDIT.md)
 
 Hangul Drop is a mobile-friendly falling-block puzzle game. Arrange Korean letters (*jamo*: consonants, vowels and final consonants, or *batchim*) to form syllables. It runs in a web browser; no installation or account is required.
 
@@ -26,7 +26,7 @@ The game runs from **one HTML file**, without external JavaScript libraries, adv
 
 A limited source-code inspection and local browser runtime check did not find calls to external network APIs, recognizable embedded credentials or outbound requests during the tested actions. **These are self-assessment results, not independent certification or proof that the site has no vulnerabilities.** GitHub Pages hosting logs, security response headers, and the device's speech-synthesis service are outside the scope of those checks.
 
-See the **[security assessment, scope, limitations and reproducible checks](SECURITY_AUDIT.md)**. A repository workflow reruns the defined source checks for each change. Links to independent security assessment services are listed in the report.
+A passive ZAP scan of the live site reported **55 PASS rules, 13 warning categories and 0 FAIL rules**, including missing CSP and anti-clickjacking protections. **This does not prove the site is vulnerability-free.** See the **[external-tool results, original scan links and known limitations](INDEPENDENT_SECURITY_CHECKS.md)**, and the [reproducible self-assessment](SECURITY_AUDIT.md).
 
 ## Code and development
 
