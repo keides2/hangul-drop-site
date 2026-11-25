@@ -3,7 +3,7 @@
 **実施日：2026年11月25日** ／ 対象：[`keides2/hangul-drop-site`](https://github.com/keides2/hangul-drop-site)（公開用 `main`）  
 **ゲーム本体のGit blob SHA：** `66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`
 
-**総合判断：限定的な自己監査で重大な異常は検出されませんでした。** これは検査範囲内の結果であり、第三者による安全認証、脆弱性ゼロの証明、運営する全サービスへの保証ではありません。
+**総合判断：自己監査では対象パターンに重大な異常は検出されませんでした。ただし、ZAPの稼働サイト診断では13種類の警告を検出しています。** 「安全認証済み」「脆弱性ゼロ」ではありません。**[独立した検査エンジンの実行結果・警告詳細](INDEPENDENT_SECURITY_CHECKS.md)** を併せて確認してください。
 
 ## 検査項目・測定値
 
@@ -44,12 +44,13 @@ Chromium + Playwrightを使い、公開版と同じ内容の `index.html` をロ
 
 ## 未検証事項・残るリスク
 
-1. **第三者監査・ペネトレーションテストは未実施。** 既知パターンに該当しない脆弱性を否定できません。
-2. **本番HTTPレスポンスのセキュリティヘッダーは未測定。** この環境では公開URLへの直接HTTP検証が行えませんでした。GitHubの公式資料では、`github.io` サイトはHTTPSで配信されますが、今回TLS証明書やHTTPヘッダーを独立に測定したわけではありません。
-3. **CSP（Content Security Policy）の強制は未検証。** ゲーム本体はインラインのJavaScriptとCSSを含み、現状HTML側のCSPメタ指定はありません。GitHub Pagesでは自由なHTTPヘッダー設定に制約があります。
+1. **専門家による第三者監査・ペネトレーションテストは未実施。** CodeQL・ZAPによる自動診断を実施しましたが、既知パターンに該当しない脆弱性を否定できません。
+2. **本番HTTPヘッダーはZAP 2.17.0で測定済み。** [外部検査結果](INDEPENDENT_SECURITY_CHECKS.md)のとおり、CSP、クリックジャッキング対策、`X-Content-Type-Options`などの警告があります。TLS証明書の詳細やMozilla Observatoryの点数は未測定です。
+3. **CSPの強制は確認されておらず、ZAPはCSPヘッダーなしをMediumと評価しました。** ゲーム本体にはインラインJavaScriptとCSSがあり、適切なCSPを導入するには設計とブラウザー回帰試験が必要です。GitHub Pages側のHTTPヘッダー設定には制約があります。
 4. **通信0件はテストした操作・環境での観測値。** すべての端末・音声エンジン・操作経路の結果ではありません。
 5. **GitHubのシークレットスキャン警告一覧やリポジトリ設定は未照会。** 管理画面での確認を推奨します。
-6. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
+6. 外部のZAP検査には**FAIL 0 / WARN 13種類 / PASS 55**が含まれます（[原本リンク・内容の解説](INDEPENDENT_SECURITY_CHECKS.md)）。CodeQLの実行は成功し、HTML 1件の解析もログで確認しましたが、CodeQLの警告件数は未確認です。
+7. 検査結果は**この版・この時点**のものです。更新後は再実行してください。
 
 ## 再現手順・継続チェック
 
@@ -67,7 +68,7 @@ python -m playwright install chromium
 python tests/browser_security_smoke.py
 ```
 
-GitHub Actionsの **[Public site security checks](https://github.com/keides2/hangul-drop-site/actions/workflows/security-audit.yml)** は、`main` へのpushやプルリクエストのたびに静的検査を再実行します。**PASSは定義された項目の検査成功だけを意味します。**
+GitHub Actionsの **[Public site security checks](https://github.com/keides2/hangul-drop-site/actions/workflows/security-audit.yml)** は`main`へのpushやプルリクエストのたびに静的検査を再実行します。加えて、[CodeQL](https://github.com/keides2/hangul-drop-site/actions/workflows/codeql.yml) と [ZAP](https://github.com/keides2/hangul-drop-site/actions/workflows/zap-baseline.yml) の検査も利用できます。**緑色の実行結果だけで警告0件とは判断しないでください。**
 
 ## 参考（GitHub公式・公開情報）
 
