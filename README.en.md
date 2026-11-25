@@ -26,13 +26,13 @@ The game runs from **one HTML file**, without external JavaScript libraries, adv
 
 A limited source-code inspection and local browser runtime check did not find calls to external network APIs, recognizable embedded credentials or outbound requests during the tested actions. **These are self-assessment results, not independent certification or proof that the site has no vulnerabilities.** GitHub Pages hosting logs, security response headers, and the device's speech-synthesis service are outside the scope of those checks.
 
-A passive ZAP scan of the live site reported **55 PASS rules, 13 warning categories and 0 FAIL rules**, including missing CSP and anti-clickjacking protections. **This does not prove the site is vulnerability-free.** See the **[external-tool results, original scan links and known limitations](INDEPENDENT_SECURITY_CHECKS.md)**, and the [reproducible self-assessment](SECURITY_AUDIT.md).
+**CSP is now enforced by an HTML meta policy:** only SHA-256-matched JavaScript and CSS may run, while unexpected external connections and injected scripts are blocked. Browser gameplay and injection-blocking tests passed. A repeat ZAP scan reported **56 PASS rules, 12 warning categories and 0 FAIL rules** (before CSP: 55 / 13 / 0). Some anti-clickjacking and hosting-level warnings remain; **this does not prove that the site is vulnerability-free**. See the [scanner evidence and limitations](INDEPENDENT_SECURITY_CHECKS.md) and [self-assessment](SECURITY_AUDIT.md).
 
 ## Code and development
 
 - Public game: <https://keides2.github.io/hangul-drop-site/>
 - Game source: `index.html`; no build system or package installation is required.
-- Source checks: `python3 tests/security_audit.py`.
+- Source checks: `python3 tests/security_audit.py`; CSP hash check: `python3 tools/csp_hashes.py --check`.
 - Optional browser smoke test: `python3 tests/browser_security_smoke.py` (requires Playwright and Chromium).
 - This public repository started with a fresh Git history; the original private development history has not been imported.
 
