@@ -1,6 +1,6 @@
 # 자모 DROP — ハングルドロップ
 
-**言語 / 언어： [日本語](README.md) | [한국어](README.ko.md)**
+**Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
 **[▶ ゲームを遊ぶ](https://keides2.github.io/hangul-drop-site/)** ｜ **[セキュリティ監査結果](SECURITY_AUDIT.md)**
 
