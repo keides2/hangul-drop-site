@@ -1,25 +1,39 @@
-# Hangul Drop — public game site
+# 자모 DROP — ハングルドロップ
 
-A standalone browser game for arranging Korean Hangul jamo into syllables.
+**言語 / 언어： [日本語](README.md) | [한국어](README.ko.md)**
 
-## Play
+**[▶ ゲームを遊ぶ](https://keides2.github.io/hangul-drop-site/)** ｜ **[セキュリティ監査結果](SECURITY_AUDIT.md)**
 
-Open `index.html` in a browser. The game is packaged as a single HTML document and does not require an account, web API, or external JavaScript libraries.
+ハングルの字母（子音・母音・パッチム）を積み上げて1文字を作る、スマートフォン対応の落ち物パズルゲームです。ブラウザーだけで遊べます。
 
-- Mobile: on-screen movement, rotation, drop, and NEXT skip buttons.
-- Keyboard: arrow keys, Space for hard drop, `S` to skip NEXT, `P` to pause.
-- Rules: form syllables, earn bonuses, clear filled rows, and continue after gravity settles.
-- Korean pronunciations use the browser's speech synthesis engine when supported.
-- Completed 2-jamo and 3-jamo syllables remain visible for about 3 seconds to allow reading.
+## 遊び方
 
-## Privacy and data
+- 子音と母音を正しい位置に置くと1文字が成立し、基本ボーナス **+100点**。
+- 成立した2字母は、次の**2回の着地**まで保持。その間に正しい位置へパッチム（終声）を追加すると **+200点**。
+- 完成した文字は消去前に約**2.3秒**表示され、端末が対応していれば韓国語で読み上げます。
+- 横一列が16マス中13マス埋まると消去。消去後の再落下や連鎖もあります。
+- **NEXTスキップ**は1ゲーム3回まで使用できます。
 
-This static site does not send game information to a server and contains no analytics or external scripts. The browser can store a local best-score value via `localStorage`.
+**操作：** スマートフォンでは画面上のボタン／スワイプ、PCでは矢印キー・Space（即落下）・`S`（NEXTスキップ）・`P`（一時停止）。`♪` は効果音、`🔊` は韓国語読み上げのON/OFFです。
 
-This is a falling-block game with approximate placement rules. It is **not** a complete reference for formal Hangul orthography.
+## ハングル学習について
 
-## Publication
+縦母音は子音の右、横母音は子音の下、パッチムは文字の下に配置する必要があります。ただしゲーム用に多少の位置のずれを許容しており、**正式なハングルの綴字規則を完全に再現する教材ではありません**。
 
-Publish these files from the root of a fresh public Git repository with a fresh, email-private commit history. Do **not** make the original private development repository public: its historical commits contain personal author metadata.
+## プライバシーとセキュリティ
 
-No software license is granted by this README. Contact the repository owner before reusing the source.
+ゲーム本体は **HTML 1ファイル**で動作し、外部JavaScriptライブラリ・広告・アクセス解析は組み込まれていません。最高得点だけをブラウザーの `localStorage` に保存します。
+
+公開コードに対して静的検査とローカルブラウザーテストを行いました。**検査した範囲**では外部通信API・既知の認証情報・外部ネットワークリクエストは検出されていません。ただし、**第三者によるセキュリティ認証でも、絶対的な安全性の保証でもありません**。GitHub Pages側のアクセスログ、端末の音声合成サービス、本番HTTPヘッダーは検査範囲が異なります。
+
+測定結果、検査条件、残るリスク、再実行手順は **[セキュリティ監査結果](SECURITY_AUDIT.md)** に記録しています。静的検査はGitHub Actionsでもコミットごとに実行します。
+
+## ソースコード・運用
+
+- 公開サイト：<https://keides2.github.io/hangul-drop-site/>
+- ゲーム本体：`index.html`（外部ビルド・パッケージ管理不要）
+- 静的検査：`python3 tests/security_audit.py`
+- ブラウザーテスト（任意）：`python3 tests/browser_security_smoke.py`（Playwright + Chromiumが必要）
+- この公開リポジトリには、非公開開発リポジトリのGit履歴を移植していません。
+
+**ライセンス：** 現時点でオープンソースライセンスは設定していません。公開コードを自由に再利用する許諾を意味しません。
