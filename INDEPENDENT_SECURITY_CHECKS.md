@@ -1,11 +1,18 @@
 # 外部検査ツールによるセキュリティ評価（2026年11月25日）
 
 **対象サイト：** <https://keides2.github.io/hangul-drop-site/>  
-**公開ソース：** [index.html](index.html)（Git blob `66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`）
+**公開ソース：** [index.html](index.html)（現行Git blob `8c520d9cf917f424d57ced4aee3e0aaeb0350ab6`、CSP導入前の初回測定対象：`66e7ae55ec88fd859373c4a8e46b59fccc3bf1bc`）
+
+## 追加検証：字母判定修正後（2026年11月25日）
+
+- 現行 `index.html`（Git blob `8c520d9cf917f424d57ced4aee3e0aaeb0350ab6`）では、衝突しない母音が子音の空き部分へ1マス入る配置に対応しました。許可するのは正しい右／下配置のみです。
+- [ZAP再測定の原本](https://github.com/keides2/hangul-drop-site/actions/runs/45569372823)：**PASS 56 / WARN 12種類 / FAIL 0**。CSP未設定の警告は再発していません。
+- [CSP・組字の自動テスト](https://github.com/keides2/hangul-drop-site/actions/workflows/security-audit.yml)：CSPハッシュとブラウザーでの否定試験に加え、子音・母音の10配置と2字母／3字母の実動作を検査します。
+- 上記の結果は脆弱性ゼロの認定ではなく、ZAPによるホスティング側の警告が12種類残ります。
 
 ## 更新：CSP適用後の実測結果
 
-**2026年11月25日更新。** [現行ゲーム本体](index.html)のGit blobは `3e938f0408bac927baa3ea5ecfb03955f6ba1ac4` です。GitHub Pages上のHTMLに **`<meta http-equiv="Content-Security-Policy">`** を配置し、SHA-256ハッシュ一致のJavaScriptとCSSだけを実行・適用できるようにしました。インラインのイベント／スタイル属性と `unsafe-inline`・`unsafe-eval` は禁止し、`connect-src 'none'` などにより外部通信・不要なリソース読み込みを制限しています。
+**2026年11月25日測定時。** CSP初版のGit blobは `3e938f0408bac927baa3ea5ecfb03955f6ba1ac4` です。GitHub Pages上のHTMLに **`<meta http-equiv="Content-Security-Policy">`** を配置し、SHA-256ハッシュ一致のJavaScriptとCSSだけを実行・適用できるようにしました。インラインのイベント／スタイル属性と `unsafe-inline`・`unsafe-eval` は禁止し、`connect-src 'none'` などにより外部通信・不要なリソース読み込みを制限しています。
 
 - **ZAP再検査：PASS 56 / WARN 12種類 / FAIL 0**（[CSP導入後のZAP実行ログとHTMLレポート](https://github.com/keides2/hangul-drop-site/actions/runs/45553567853)）。導入前の13種類から12種類へ減少し、**CSP Header Not Set [10038]は再検出されませんでした**。
 - **Chromiumの動作検証：** 390×844、360×640、844×390でゲーム開始・移動・落下・NEXTスキップ・効果音切替が正常。正常操作中のCSP違反0件、JS実行エラー0件、外部リクエスト0件。
