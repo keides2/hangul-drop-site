@@ -2,7 +2,7 @@
 
 **Language / 言語 / 언어: [English](README.en.md) | [日本語](README.md) | [한국어](README.ko.md)**
 
-**[▶ ゲームを遊ぶ](https://keides2.github.io/hangul-drop-site/)** ｜ **[セキュリティ監査結果](SECURITY_AUDIT.md)**
+**[▶ ゲームを遊ぶ](https://keides2.github.io/hangul-drop-site/)** ｜ **[外部検査：CodeQL / ZAP（警告13種類）](INDEPENDENT_SECURITY_CHECKS.md)** ｜ [自己監査](SECURITY_AUDIT.md)
 
 ハングルの字母（子音・母音・パッチム）を積み上げて1文字を作る、スマートフォン対応の落ち物パズルゲームです。ブラウザーだけで遊べます。
 
@@ -26,7 +26,7 @@
 
 公開コードに対して静的検査とローカルブラウザーテストを行いました。**検査した範囲**では外部通信API・既知の認証情報・外部ネットワークリクエストは検出されていません。ただし、**第三者によるセキュリティ認証でも、絶対的な安全性の保証でもありません**。GitHub Pages側のアクセスログ、端末の音声合成サービス、本番HTTPヘッダーは検査範囲が異なります。
 
-測定結果、検査条件、残るリスク、再実行手順は **[セキュリティ監査結果](SECURITY_AUDIT.md)** に記録しています。静的検査はGitHub Actionsでもコミットごとに実行します。
+さらに実際の公開サイトに対するZAP診断では **PASS 55 / WARN 13種類 / FAIL 0** と報告され、CSPやクリックジャッキング対策ヘッダーの不足が指摘されています。これは**脆弱性ゼロの証明ではありません**。検査ログと警告の詳細は **[外部ツールによる検査結果](INDEPENDENT_SECURITY_CHECKS.md)** に掲載しています。自己監査の範囲・再実行手順は [こちら](SECURITY_AUDIT.md)。
 
 ## ソースコード・運用
 
